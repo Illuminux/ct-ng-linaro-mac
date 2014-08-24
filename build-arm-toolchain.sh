@@ -19,6 +19,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # 
 
+# Base path, wher this script is located 
+BASEPATH=$(pwd)
+
 # include global variables
 source ./inc/global.cfg
 # include global functions
@@ -37,9 +40,6 @@ ulimit -n 1024
 export TARGET=${glb_target}
 export PREFIX=${glb_prefix}
 export PATH=/usr/local/bin:$PREFIX/bin:$PATH
-
-# Base path, wher this script is located 
-BASEPATH=$(pwd)
 
 # Clear screen
 clear 
