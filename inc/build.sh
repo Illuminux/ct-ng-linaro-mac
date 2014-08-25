@@ -32,11 +32,11 @@ build_kernel(){
 	cd ${glb_source_path}/${glb_kernel_name}
 
 	echo -n "Configure Kernel... "
-	make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- defconfig >/dev/null 2>&1 || exit 1
+	make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- defconfig >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	echo -n "Install Kernel headers... "
-	make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- headers_install >/dev/null 2>&1 || exit 1
+	make ARCH=arm CROSS_COMPILE=arm-none-linux-gnueabihf- headers_install  >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	cp -r ${glb_source_path}/${glb_kernel_name}/usr/include ${glb_build_path} || exit 1
 	echo "done"
 
@@ -77,15 +77,18 @@ build_binutils(){
 	cd ${glb_source_path}/${glb_binutils_name}/build
 
 	echo -n "Configure Binutils... "
-	../configure --disable-werror --target=$TARGET --prefix=$PREFIX --disable-nls  >/dev/null 2>&1 || exit 1
+	../configure --target=$TARGET --prefix=$PREFIX \
+		--disable-werror --disable-nls --disable-gdb --disable-libdecnumber \
+		--disable-readline --disable-sim --enable-plugins --enable-poison-system-directories \
+		>/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	echo -n "Build Binutils... "
-	make  >/dev/null 2>&1 || exit 1
+	make >/dev/null >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	echo -n "Install Binutils... "
-	make install  >/dev/null 2>&1 || exit 1
+	make install >/dev/null >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	cd ${glb_disk_image_path}
@@ -196,16 +199,16 @@ build_gcc1(){
 	echo -n "Configure GCC part 1... "
 	../configure --target=$TARGET --prefix=$PREFIX --disable-threads \
 		--disable-shared --with-newlib --disable-multilib --with-local-prefix=$PREFIX \
-		--disable-nls --without-headers --enable-languages=c,c++ >/dev/null 2>&1 || exit 1
+		--disable-nls --without-headers --enable-languages=c,c++ >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 
 	echo "done"
 	
 	echo -n "Build GCC part 1... "
-	make all-gcc all-target-libgcc >/dev/null 2>&1 || exit 1 
+	make all-gcc all-target-libgcc >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1 
 	echo "done"
 	
 	echo -n "Install GCC part 1... "
-	make install-gcc install-target-libgcc >/dev/null 2>&1 || exit 1
+	make install-gcc install-target-libgcc >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	cd ${glb_disk_image_path}
@@ -237,7 +240,7 @@ build_eglibc(){
 		echo "done"
 		
 		echo -n "Patching Embedded GLIBC... "
-		patch -p1 < "${BASEPATH}/patches/eglibc.patch" >/dev/null 2>&1 || exit 1
+		patch -p1 < "${BASEPATH}/patches/eglibc.patch" >/dev/null 2>&1 | tee ${glb_log_path}/patch.log || exit 1
 		echo "done"
 	else
 		if [ -d "${glb_source_path}/${glb_eglibc_name}/build" ]; then
@@ -251,15 +254,15 @@ build_eglibc(){
 	echo -n "Configure Embedded GLIBC... "
 	CC=$TARGET-gcc ../configure --host=$TARGET --prefix=$PREFIX \
 		--with-headers=$PREFIX/include --enable-add-ons \
-		--disable-nls libc_cv_forced_unwind=yes >/dev/null 2>&1 || exit 1
+		--disable-nls libc_cv_forced_unwind=yes >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	echo -n "Build Embedded GLIBC... "
-	make >/dev/null 2>&1 || exit 1
+	make >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 	
 	echo -n "Install Embedded GLIBC... "
-	make install >/dev/null 2>&1 || exit 1
+	make install >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 	echo "done"
 
 }
@@ -281,15 +284,15 @@ build_gcc2(){
 		echo -n "Configure GCC part 2... "
 		../configure --target=$TARGET --prefix=$PREFIX --disable-nls \
 			--enable-languages=c,c++ --with-headers=$PREFIX/include \
-			--with-libs=$PREFIX/lib >/dev/null 2>&1 || exit 1
+			--with-libs=$PREFIX/lib >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 		echo "done"
 		
 		echo -n "Build GCC part 2... "
-		make >/dev/null 2>&1 || exit 1
+		make >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 		echo "done"
 		
 		echo -n "Install GCC part 2... "
-		make install >/dev/null 2>&1 || exit 1
+		make install >/dev/null 2>&1 | tee ${glb_log_path}/build.log || exit 1
 		echo "done"
 	else
 		echo "Error: ${glb_download_path}/${glb_gcc_arch} not found"

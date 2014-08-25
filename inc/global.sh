@@ -45,6 +45,15 @@ create_image(){
 	else
 		echo "already exists"
 	fi
+	
+	echo -n "Create build directory... "
+	if [ ! -d "${glb_log_path}" ]; then
+		mkdir ${glb_log_path} || exit 1
+		echo "done"
+	else
+		rm -rf ${glb_log_path}/*
+		echo "already exists"
+	fi
 }
 
 
@@ -82,7 +91,7 @@ finish_build(){
 	
 	echo -n "Create compressed archiv... "
 	mv build arm-linux
-	tar -czf "$BASEPATH/${glb_target}.tar.gz" arm-linux/ >/dev/null 2>&1 || exit 1
+	tar -czf "$BASEPATH/${glb_target}.tar.gz" ${glb_build_path}/ >/dev/null 2>&1 || exit 1
 	mv arm-linux build 
 	echo "done"
 	
@@ -96,7 +105,6 @@ finish_build(){
 		read -p "Should the build image be deleted? [y/N] " yN
 		yN=${yN:-N}
 		case $yN in
-#			[Yy]* ) rm -rf "${glb_disk_image_name}.dmg"; break;;
 			[Yy]* ) echo "remove image"; break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;

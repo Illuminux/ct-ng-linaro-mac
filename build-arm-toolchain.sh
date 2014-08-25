@@ -101,7 +101,5 @@ finish_build
 
 echo ""
 echo "ARM Linux Cross-Toolchain for Mac OS X was build successfully."
-echo "The archive was placed to ${BASEPATH}/arm-linux.tar.gz."
-echo "Extract to a location where ever you want and add it to your Path."
-echo "  eg. [Your Location]/arm-linux/bin"
+echo "You can find them in '/usr/local/arm-linux-hf'."
 echo ""

@@ -11,6 +11,8 @@ Just run the script in the top level directory of the repo
 
 `$ ./build-arm-toolchain.sh`
 
+Aafter the build script was successful executed, ARM Linux Cross-Toolchain are placed in `/usr/local/arm-linux-hf`.
+
 
 Dependencies:
 - [Xcode Command Line Tools](https://developer.apple.com/xcode/)

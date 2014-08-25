@@ -8,7 +8,7 @@ download_sources(){
 	echo -n "Download Linaro crosscompiler sources Part 1... "
 	if [ ! -f "${glb_linaro_src1_arch}" ]; then
 		echo ""
-		wget ${glb_linaro_src1_url} || exit 1
+		wget ${glb_linaro_src1_url} >/dev/null 2>&1 | tee ${glb_log_path}/download.log || exit 1
 	else
 		echo "already loaded"
 	fi
@@ -31,7 +31,7 @@ download_sources(){
 		echo -n "Download Linaro crosscompiler sources Part 2... "
 		if [ ! -f "${glb_linaro_src2_arch}" ]; then
 			echo ""
-			wget ${glb_linaro_src2_url} || exit 1
+			wget ${glb_linaro_src2_url} >/dev/null 2>&1 | tee ${glb_log_path}/download.log || exit 1
 		else
 			echo "already loaded"
 		fi
@@ -55,7 +55,7 @@ download_sources(){
 	
 	echo -n "Download Linaro eglibc... "
 	if [ ! -f "${glb_eglibc_arch}" ]; then
-		wget ${glb_eglibc_url} || exit 1
+		wget ${glb_eglibc_url} >/dev/null 2>&1 | tee ${glb_log_path}/download.log || exit 1
 	else 
 		echo "already loaded"
 	fi
