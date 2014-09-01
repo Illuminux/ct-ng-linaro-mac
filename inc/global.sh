@@ -142,20 +142,49 @@ install_Command_Line_Tools(){
 
 
 ##
+## Stripping all toolchain executables
+##
+strip_bin(){
+
+	echo -n "Stripping all toolchain executables... " 2>&1 | tee -a $glb_build_log
+
+	# Stripping files in bin
+	FILES="${glb_prefix}/bin/*"
+	for f in $FILES; do
+		gstrip --strip-all -v $f >/dev/null 2>&1 >> $glb_build_log
+	done
+	
+	# Stripping files in TARGET/bin
+	FILES="${glb_prefix}/${glb_target}/bin/*"
+	for f in $FILES; do
+		gstrip --strip-all -v $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
+	done
+	
+	# Stripping files in libexec/gcc/TARGET
+	FILES="${glb_prefix}/libexec/gcc/${glb_target}/4.8.2/*"
+	for f in $FILES; do
+		gstrip --strip-all -v $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
+	done
+	
+	echo "done"
+}
+
+
+##
 ## End of the build
 ##
 finish_build(){
 	
 	cd $BASEPATH
 	
-	echo -n "Create compressed archiv... " 
+	echo -n "Create compressed archive... " 
 	tar -cJPf ./${glb_build_name}.tar.xz ${glb_build_path} >/dev/null 2>&1 || exit 1
 	echo "done" 
 
 	cd $BASEPATH
 
 	echo -n "Unmount build image... " 
-	hdiutil detach ${glb_disk_image_path} >/dev/null 2>&1
+	hdiutil detach ${glb_prefix} >/dev/null 2>&1
 	echo "done" 
 	
 	while true; do
