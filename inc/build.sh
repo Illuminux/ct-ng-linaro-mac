@@ -18,7 +18,7 @@ build_sysroot(){
 	fi
 	
 	# Test if sysroot archive is not corrupted
-	echo -n "md5 check of ${glb_sysroot_arch}... "
+	echo -n "md5 check of ${glb_sysroot_arch}... " 2>&1 | tee -a $glb_build_log
 	if [ ! $(md5 -q ${glb_download_path}/${glb_sysroot_arch}) = ${glb_sysroot_md5} ]; then
 		echo "faild!" 2>&1 | tee -a $glb_build_log
 		exit 1
@@ -123,7 +123,7 @@ build_gmp(){
 	make -j2  >> ${glb_log_path}/gmp.log 2>&1 || exit 1
 	echo "done" 2>&1 | tee -a $glb_build_log
 
-	echo -n "Install gmp... "
+	echo -n "Install gmp... " 2>&1 | tee -a $glb_build_log
 	make install >> ${glb_log_path}/gmp.log 2>&1 || exit 1
 	echo "done" 2>&1 | tee -a $glb_build_log
 }
@@ -1025,7 +1025,7 @@ build_gcc2(){
 		cd ${glb_source_path}/${glb_gcc_name}/build2
 		
 		# configure gcc part 2
-		echo -n "Configure GCC part 2... " 2>&1 | tee -a $glb_build_log
+		echo -n "Configure shared core C compiler... " 2>&1 | tee -a $glb_build_log
 		
 		# get libc 
 		mkdir -p ${glb_build_path}/gcc-core-shared/arm-linux-gnueabihf/include >> $glb_build_log 2>&1 || exit 1
@@ -1070,7 +1070,7 @@ build_gcc2(){
 		echo "done" 2>&1 | tee -a $glb_build_log
 		
 		# build gcc part 2
-		echo -n "Build GCC part 2... " 2>&1 | tee -a $glb_build_log
+		echo -n "Build shared core C compiler... " 2>&1 | tee -a $glb_build_log
 		
 		make configure-gcc configure-libcpp configure-build-libiberty >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
 		make all-libcpp all-build-libiberty >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
@@ -1084,7 +1084,7 @@ build_gcc2(){
 		echo "done" 2>&1 | tee -a $glb_build_log
 		
 		# install gcc part 2
-		echo -n "Install GCC part 2... " 2>&1 | tee -a $glb_build_log
+		echo -n "Install shared core C compiler... " 2>&1 | tee -a $glb_build_log
 		make install-gcc install-target-libgcc >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
 		ln -sf \
 			${glb_build_path}/gcc-core-shared/bin/arm-linux-gnueabihf-gcc  \
@@ -1166,7 +1166,7 @@ build_gcc3(){
 		echo "done" 2>&1 | tee -a $glb_build_log
 		
 		# install gcc part 3
-		echo -n "Install final compiler... "
+		echo -n "Install final compiler... " 2>&1 | tee -a $glb_build_log
 		make install >> ${glb_log_path}/gcc3.log 2>&1 || exit 1
 		echo "done" 2>&1 | tee -a $glb_build_log
 		

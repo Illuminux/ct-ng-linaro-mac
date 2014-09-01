@@ -6,7 +6,7 @@
 create_image(){
 	
 	# Create image if not exists 
-	echo "Create case sensitive image" 2>&1 | tee -a $glb_build_log 
+	echo "Create Case-Sensitive Disk Image" 2>&1 | tee -a $glb_build_log 
 	if [ ! -f "${glb_disk_image_name}.sparseimage" ]; then
 		hdiutil create "${glb_disk_image_name}.sparseimage" \
 			-type SPARSE \
