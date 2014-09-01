@@ -1,0 +1,1193 @@
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/addr2line.c binutils-linaro-2.23.2-2013.10-4/binutils/addr2line.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/addr2line.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/addr2line.c	2014-08-31 10:19:12.000000000 +0200
+@@ -389,6 +389,7 @@ process_file (const char *file_name, con
+   return 0;
+ }
+ 
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -403,7 +404,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = *argv;
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/ar.c binutils-linaro-2.23.2-2013.10-4/binutils/ar.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/ar.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/ar.c	2014-08-31 10:19:12.000000000 +0200
+@@ -650,7 +650,7 @@ ranlib_main (int argc, char **argv)
+ 
+   xexit (status);
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int main (int, char **);
+ 
+ int
+@@ -668,7 +668,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/coffdump.c binutils-linaro-2.23.2-2013.10-4/binutils/coffdump.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/coffdump.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/coffdump.c	2014-08-31 10:19:12.000000000 +0200
+@@ -472,7 +472,7 @@ show_usage (FILE *file, int status)
+ 
+   exit (status);
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int ac, char **av)
+ {
+@@ -494,7 +494,31 @@ main (int ac, char **av)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = av[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/cxxfilt.c binutils-linaro-2.23.2-2013.10-4/binutils/cxxfilt.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/cxxfilt.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/cxxfilt.c	2014-08-31 10:19:12.000000000 +0200
+@@ -167,7 +167,7 @@ hp_symbol_characters (void)
+ }
+ 
+ extern int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -178,6 +178,39 @@ main (int argc, char **argv)
+   program_name = argv[0];
+   xmalloc_set_program_name (program_name);
+ 
++#if defined (HAVE_SETLOCALE) && defined (HAVE_LC_MESSAGES)
++  setlocale (LC_MESSAGES, "");
++#endif
++#if defined (HAVE_SETLOCALE)
++  setlocale (LC_CTYPE, "");
++#endif
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
++  textdomain (PACKAGE);
++
+   expandargv (&argc, &argv);
+ 
+   while ((c = getopt_long (argc, argv, "_hinps:tv", long_options, (int *) 0)) != EOF)
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/dlltool.c binutils-linaro-2.23.2-2013.10-4/binutils/dlltool.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/dlltool.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/dlltool.c	2014-08-31 10:19:12.000000000 +0200
+@@ -4019,7 +4019,7 @@ static const struct option long_options[
+ };
+ 
+ int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int ac, char **av)
+ {
+@@ -4035,7 +4035,31 @@ main (int ac, char **av)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   expandargv (&ac, &av);
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/dllwrap.c binutils-linaro-2.23.2-2013.10-4/binutils/dllwrap.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/dllwrap.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/dllwrap.c	2014-08-31 10:19:12.000000000 +0200
+@@ -601,7 +601,7 @@ static const struct option long_options[
+ };
+ 
+ int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -634,7 +634,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   expandargv (&argc, &argv);
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/elfedit.c binutils-linaro-2.23.2-2013.10-4/binutils/elfedit.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/elfedit.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/elfedit.c	2014-08-31 10:19:12.000000000 +0200
+@@ -651,7 +651,7 @@ usage (FILE *stream, int exit_status)
+     fprintf (stream, _("Report bugs to %s\n"), REPORT_BUGS_TO);
+   exit (exit_status);
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char ** argv)
+ {
+@@ -663,7 +663,31 @@ main (int argc, char ** argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   expandargv (&argc, &argv);
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/nlmconv.c binutils-linaro-2.23.2-2013.10-4/binutils/nlmconv.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/nlmconv.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/nlmconv.c	2014-08-31 10:19:12.000000000 +0200
+@@ -150,7 +150,7 @@ static void powerpc_mangle_relocs (bfd *
+ #endif
+ 
+ /* The main routine.  */
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -208,7 +208,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/nm.c binutils-linaro-2.23.2-2013.10-4/binutils/nm.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/nm.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/nm.c	2014-08-31 10:19:12.000000000 +0200
+@@ -1516,6 +1516,7 @@ print_symbol_info_posix (struct extended
+     }
+ }
+ 
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -1529,7 +1530,31 @@ main (int argc, char **argv)
+   setlocale (LC_CTYPE, "");
+   setlocale (LC_COLLATE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = *argv;
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/objcopy.c binutils-linaro-2.23.2-2013.10-4/binutils/objcopy.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/objcopy.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/objcopy.c	2014-08-31 10:19:12.000000000 +0200
+@@ -4138,7 +4138,7 @@ copy_main (int argc, char *argv[])
+ 
+   return 0;
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char *argv[])
+ {
+@@ -4148,7 +4148,31 @@ main (int argc, char *argv[])
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/objdump.c binutils-linaro-2.23.2-2013.10-4/binutils/objdump.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/objdump.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/objdump.c	2014-08-31 10:19:12.000000000 +0200
+@@ -3409,6 +3409,7 @@ display_file (char *filename, char *targ
+   bfd_close (file);
+ }
+ 
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -3423,7 +3424,31 @@ main (int argc, char **argv)
+   setlocale (LC_CTYPE, "");
+ #endif
+ 
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = *argv;
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/readelf.c binutils-linaro-2.23.2-2013.10-4/binutils/readelf.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/readelf.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/readelf.c	2014-08-31 10:19:12.000000000 +0200
+@@ -13768,7 +13768,7 @@ db_task_printsym (unsigned int addr)
+   print_address (addr, stderr);
+ }
+ #endif
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char ** argv)
+ {
+@@ -13780,7 +13780,31 @@ main (int argc, char ** argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   expandargv (&argc, &argv);
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/size.c binutils-linaro-2.23.2-2013.10-4/binutils/size.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/size.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/size.c	2014-08-31 10:19:12.000000000 +0200
+@@ -117,7 +117,7 @@ static struct option long_options[] =
+ };
+ 
+ int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -130,7 +130,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = *argv;
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/srconv.c binutils-linaro-2.23.2-2013.10-4/binutils/srconv.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/srconv.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/srconv.c	2014-08-31 10:19:12.000000000 +0200
+@@ -1743,7 +1743,7 @@ show_usage (FILE *ffile, int status)
+     fprintf (ffile, _("Report bugs to %s\n"), REPORT_BUGS_TO);
+   exit (status);
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int ac, char **av)
+ {
+@@ -1767,7 +1767,31 @@ main (int ac, char **av)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = av[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/strings.c binutils-linaro-2.23.2-2013.10-4/binutils/strings.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/strings.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/strings.c	2014-08-31 10:19:12.000000000 +0200
+@@ -134,7 +134,7 @@ static void usage (FILE *, int);
+ static long get_char (FILE *, file_ptr *, int *, char **);
+ 
+ int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -147,7 +147,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_ALL, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/sysdump.c binutils-linaro-2.23.2-2013.10-4/binutils/sysdump.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/sysdump.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/sysdump.c	2014-08-31 10:19:12.000000000 +0200
+@@ -653,7 +653,7 @@ show_usage (FILE *ffile, int status)
+     fprintf (ffile, _("Report bugs to %s\n"), REPORT_BUGS_TO);
+   exit (status);
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int ac, char **av)
+ {
+@@ -672,7 +672,31 @@ main (int ac, char **av)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = av[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/windmc.c binutils-linaro-2.23.2-2013.10-4/binutils/windmc.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/windmc.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/windmc.c	2014-08-31 10:19:12.000000000 +0200
+@@ -933,7 +933,7 @@ mc_unify_path (const char *path)
+ }
+ 
+ int main (int, char **);
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -948,7 +948,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/binutils/windres.c binutils-linaro-2.23.2-2013.10-4/binutils/windres.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/binutils/windres.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/binutils/windres.c	2014-08-31 10:19:12.000000000 +0200
+@@ -785,7 +785,7 @@ windres_add_include_dir (const char *p)
+ int main (int, char **);
+ 
+ /* The main function.  */
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -809,7 +809,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++          
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gas/as.c binutils-linaro-2.23.2-2013.10-4/gas/as.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/gas/as.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gas/as.c	2014-08-31 10:19:12.000000000 +0200
+@@ -1126,7 +1126,7 @@ create_obj_attrs_section (void)
+ }
+ #endif
+ 
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char ** argv)
+ {
+@@ -1142,7 +1142,31 @@ main (int argc, char ** argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   if (debug_memory)
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gas/config/tc-arm.c binutils-linaro-2.23.2-2013.10-4/gas/config/tc-arm.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/gas/config/tc-arm.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gas/config/tc-arm.c	2014-08-31 10:18:57.000000000 +0200
+@@ -888,6 +888,8 @@ const char FLT_CHARS[] = "rRsSfFdDxXeEpP
+ static inline int
+ skip_past_char (char ** str, char c)
+ {
++  skip_whitespace (*str);
++
+   if (**str == c)
+     {
+       (*str)++;
+@@ -5171,6 +5173,8 @@ parse_address_main (char **str, int i, i
+       return PARSE_OPERAND_SUCCESS;
+     }
+ 
++  skip_whitespace (p);
++
+   if ((reg = arm_reg_parse (&p, REG_TYPE_RN)) == FAIL)
+     {
+       inst.error = _(reg_expected_msgs[REG_TYPE_RN]);
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/Makefile.am binutils-linaro-2.23.2-2013.10-4/gold/Makefile.am
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/Makefile.am	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/Makefile.am	2014-08-31 10:18:34.000000000 +0200
+@@ -15,7 +15,7 @@ AM_CPPFLAGS = \
+ 	-I$(srcdir) -I$(srcdir)/../include -I$(srcdir)/../elfcpp \
+ 	-DLOCALEDIR="\"$(datadir)/locale\"" \
+ 	-DBINDIR="\"$(bindir)\"" -DTOOLBINDIR="\"$(tooldir)/bin\"" \
+-	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@
++	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@ @MULTIARCH_DIRNAME@
+ 
+ LIBIBERTY = ../libiberty/libiberty.a
+ 
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/Makefile.in binutils-linaro-2.23.2-2013.10-4/gold/Makefile.in
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/Makefile.in	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/Makefile.in	2014-08-31 10:18:34.000000000 +0200
+@@ -372,7 +372,7 @@ AM_CPPFLAGS = \
+ 	-I$(srcdir) -I$(srcdir)/../include -I$(srcdir)/../elfcpp \
+ 	-DLOCALEDIR="\"$(datadir)/locale\"" \
+ 	-DBINDIR="\"$(bindir)\"" -DTOOLBINDIR="\"$(tooldir)/bin\"" \
+-	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@
++	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@ @MULTIARCH_DIRNAME@
+ 
+ LIBIBERTY = ../libiberty/libiberty.a
+ @PLUGINS_TRUE@LIBDL = -ldl
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/configure binutils-linaro-2.23.2-2013.10-4/gold/configure
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/configure	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/configure	2014-08-31 10:18:34.000000000 +0200
+@@ -594,6 +594,7 @@ LTLIBOBJS
+ MAINT
+ MAINTAINER_MODE_FALSE
+ MAINTAINER_MODE_TRUE
++MULTIARCH_DIRNAME
+ HAVE_PUBNAMES_FALSE
+ HAVE_PUBNAMES_TRUE
+ CXXCPP
+@@ -7472,6 +7473,14 @@ $as_echo "#define HAVE_LC_MESSAGES 1" >>
+   fi
+ 
+ 
++if test x$DEB_TARGET_MULTIARCH != x; then
++  multiarch=$DEB_TARGET_MULTIARCH
++  if test -n "$multiarch"; then
++    MULTIARCH_DIRNAME='-DMULTIARCH_DIRNAME=\"'$multiarch'\"'
++  fi
++fi
++
++
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
+ $as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/configure.ac binutils-linaro-2.23.2-2013.10-4/gold/configure.ac
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/configure.ac	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/configure.ac	2014-08-31 10:18:34.000000000 +0200
+@@ -575,6 +575,14 @@ AC_CHECK_HEADERS(locale.h)
+ AC_CHECK_FUNCS(setlocale)
+ AM_LC_MESSAGES
+ 
++if test x$DEB_TARGET_MULTIARCH != x; then
++  multiarch=$DEB_TARGET_MULTIARCH
++  if test -n "$multiarch"; then
++    MULTIARCH_DIRNAME='-DMULTIARCH_DIRNAME=\"'$multiarch'\"'
++  fi
++fi
++AC_SUBST(MULTIARCH_DIRNAME)
++
+ AM_MAINTAINER_MODE
+ 
+ AC_OUTPUT(Makefile testsuite/Makefile po/Makefile.in:po/Make-in)
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/main.cc binutils-linaro-2.23.2-2013.10-4/gold/main.cc
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/main.cc	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/main.cc	2014-08-31 10:19:12.000000000 +0200
+@@ -50,6 +50,12 @@
+ #include "gdb-index.h"
+ #include "timer.h"
+ 
++#ifdef _WIN32
++#include <io.h>
++#else
++#include <unistd.h>
++#endif
++
+ using namespace gold;
+ 
+ // This function emits the commandline to a hard-coded file in temp.
+@@ -133,7 +139,7 @@ write_debug_script(std::string, const ch
+ 
+ #endif // !defined(DEBUG)
+ 
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main(int argc, char** argv)
+ {
+@@ -143,7 +149,31 @@ main(int argc, char** argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale(LC_CTYPE, "");
+ #endif
+-  bindtextdomain(PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = (char*)xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain(PACKAGE);
+ 
+   program_name = argv[0];
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gold/options.cc binutils-linaro-2.23.2-2013.10-4/gold/options.cc
+--- binutils-linaro-2.23.2-2013.10-4_ori/gold/options.cc	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gold/options.cc	2014-08-31 10:18:34.000000000 +0200
+@@ -1141,6 +1141,10 @@ General_options::finalize()
+ 	       || this->user_set_sysroot()
+ 	       || *TARGET_SYSTEM_ROOT != '\0')
+ 	{
++#ifdef MULTIARCH_DIRNAME
++	  this->add_to_library_path_with_sysroot("/lib/" MULTIARCH_DIRNAME);
++	  this->add_to_library_path_with_sysroot("/usr/lib/" MULTIARCH_DIRNAME);
++#endif
+ 	  this->add_to_library_path_with_sysroot("/lib");
+ 	  this->add_to_library_path_with_sysroot("/usr/lib");
+ 	}
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/gprof/gprof.c binutils-linaro-2.23.2-2013.10-4/gprof/gprof.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/gprof/gprof.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/gprof/gprof.c	2014-08-31 10:19:12.000000000 +0200
+@@ -176,7 +176,7 @@ Usage: %s [-[abcDhilLsTvwxyz]] [-[ACeEfF
+   done (status);
+ }
+ 
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -191,7 +191,31 @@ main (int argc, char **argv)
+   setlocale (LC_CTYPE, "");
+ #endif
+ #ifdef ENABLE_NLS
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ #endif
+ 
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/ld/genscripts.sh binutils-linaro-2.23.2-2013.10-4/ld/genscripts.sh
+--- binutils-linaro-2.23.2-2013.10-4_ori/ld/genscripts.sh	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/ld/genscripts.sh	2014-08-31 10:18:20.000000000 +0200
+@@ -242,6 +242,79 @@ if [ "x${use_sysroot}" != "xyes" ] ; the
+ fi
+ 
+ LIB_SEARCH_DIRS=`echo ${LIB_PATH} | sed -e 's/:/ /g' -e 's/\([^ ][^ ]*\)/SEARCH_DIR(\\"\1\\");/g'`
++if [ -n "$DEB_TARGET_MULTIARCH" ]; then
++    temp_dirs=' '
++    for dir in `echo ${LIB_PATH} | sed -e 's/:/ /g'`; do
++	case "$dir" in
++	    ${tool_lib}*|*/${target_alias}/*)
++	        ;;
++	    */lib)
++		if [ -n "$DEB_TARGET_MULTIARCH32" ]; then
++		    case $EMULATION_NAME in
++			elf_i386|elf32*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH32 ";;
++			*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		    esac
++		elif [ -n "$DEB_TARGET_MULTIARCH64" ]; then
++		    case $EMULATION_NAME in
++			elf*_64|elf64*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH64 ";;
++			*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		    esac
++		else
++		    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		fi
++		;;
++	    */lib32)
++	        if [ -n "$DEB_TARGET_MULTIARCH32" ]; then
++		    dir2=$(echo $dir | sed "s,32$,,")
++		    temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH32 "
++		fi
++		;;
++	    */lib64)
++	        case "${target}" in
++		    powerpc64-*-*|s390x-*-*|sparc64-*-*|x86_64-*-linux-gnu|aarch64*-linux-gnu)
++			#dir=$(echo $dir | sed "s,64$,,")
++			dir2=$(echo $dir | sed "s,64$,,")
++			temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH "
++			;;
++		    *)
++			if [ -n "$DEB_TARGET_MULTIARCH64" ]; then
++			    dir2=$(echo $dir | sed "s,64$,,")
++			    temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH64 "
++			fi
++			;;
++		esac
++	        ;;
++	    */libx32)
++		case "${target}" in
++		    x86_64-*-linux-gnux32)
++			dir2=$(echo $dir | sed "s,x32$,,")
++			temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH "
++			;;
++		    *)
++			if [ -n "$DEB_TARGET_MULTIARCHX32" ]; then
++			    dir2=$(echo $dir | sed "s,x32$,,")
++			    temp_dirs="${temp_dirs}${dir2}/$DEB_HOST_MULTIARCHX32 "
++			fi
++			;;
++		esac
++		;;
++	    *)
++		;;
++	esac
++	temp_dirs="${temp_dirs}${dir} "
++    done
++    LIB_SEARCH_DIRS=
++    for dir in $temp_dirs; do
++	if echo "$LIB_SEARCH_DIRS" | fgrep -q "\"$dir\""; then
++	    continue
++	fi
++	LIB_SEARCH_DIRS="${LIB_SEARCH_DIRS}SEARCH_DIR(\"$dir\"); "
++    done
++fi
+ 
+ # We need it for testsuite.
+ set $EMULATION_LIBPATH
+diff -rupN binutils-linaro-2.23.2-2013.10-4_ori/ld/ldmain.c binutils-linaro-2.23.2-2013.10-4/ld/ldmain.c
+--- binutils-linaro-2.23.2-2013.10-4_ori/ld/ldmain.c	2013-10-10 13:22:29.000000000 +0200
++++ binutils-linaro-2.23.2-2013.10-4/ld/ldmain.c	2014-08-31 10:19:12.000000000 +0200
+@@ -185,7 +185,7 @@ ld_bfd_assert_handler (const char *fmt, 
+   (*default_bfd_assert_handler) (fmt, bfdver, file, line);
+   config.make_executable = FALSE;
+ }
+-
++#define LIBINTL_RELATIVE_DIR "../share/locale"
+ int
+ main (int argc, char **argv)
+ {
+@@ -198,7 +198,31 @@ main (int argc, char **argv)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   program_name = argv[0];

@@ -1,10 +1,23 @@
 
-arm-linux-gnueabihf.tar.gz
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.zip
 
-arm-linux-build.dmg
+*.so
+*.so.*
 
-arm-linux/
+*.dmg
+*.sparseimage
+
+linux-kernel-sources/
+
+download/
+
+install/
 
 build/
+
+src/
 
 log/
