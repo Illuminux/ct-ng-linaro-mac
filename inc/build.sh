@@ -1322,6 +1322,7 @@ build_ncurses(){
 	# configure ncurses
 	echo -n "Configure ncurses... " >> $glb_build_log 2>&1 || exit 1
 
+	CC="${glb_cc}" \
 	../configure \
 		--build=$BUILD \
 		--host=$BUILD \
