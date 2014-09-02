@@ -1,79 +1,100 @@
 #!/bin/bash
+#
+# This is a part of ARM Linux Cross-Toolchain for Mac OS X build script
+#
+# Copyright (C) 2014  Knut Welzel
+#
 
+##
+## serach for installed packagmanager
+## - abort on fink/port
+## - install brew if not found
+##
 package_manager(){
 
+	# Test if Fink is installed 
 	package_manager_fink
 
 	package_manager_port
 	
 	package_manager_brew
 	
-	echo -n "Checking for GNU wget... "
-	if ! foobar_loc="$(type -p wget)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
+	echo -n "Checking for GNU wget... " 2>&1 | tee -a $glb_build_log
+	if ! wget_loc="$(type -p wget)" || [ -z "$wget_loc" ]; then	
+		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
 		brew install wget
 	else
-		echo "yes"
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
 	
-	echo -n "Checking for GNU grep... "
-	if ! foobar_loc="$(type -p ggrep)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
-		brew install grep
+	echo -n "Checking for GNU grep... " 2>&1 | tee -a $glb_build_log
+	if ggrep_loc="$(type -p ggrep)" || [ -z "$ggrep_loc" ]; then	
+		echo "yes" 2>&1 | tee -a $glb_build_log
+	elif fgrep_loc="$(type -p fgrep)" || [ -z "$fgrep_loc" ]; then	
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	else
-		echo "yes"
+		echo "not fond, will be installed!"  2>&1 | tee -a $glb_build_log
+		brew install grep
 	fi
 	
-	echo -n "Checking for GNU sed... "	
-	if ! foobar_loc="$(type -p gsed)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
+	echo -n "Checking for GNU sed... " 2>&1 | tee -a $glb_build_log
+	if ! gsed_loc="$(type -p gsed)" || [ -z "gsed_loc" ]; then	
+		echo "not fond, will be installed!"  2>&1 | tee -a $glb_build_log
 		brew install gnu-sed
 	else
-		echo "yes"
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
 	
-	echo -n "Checking for GNU Compiler Collection... "	
-	if ! foobar_loc="$(type -p gcc-4.9)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
-		brew install gcc binutils
+	echo -n "Checking for GNU Compiler Collection... " 2>&1 | tee -a $glb_build_log
+	if ! gcc_loc="$(type -p gcc-4.8)" || [ -z "$gcc_loc" ]; then	
+		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
+		brew install homebrew/versions/gcc48
+		brew install binutils
 	else
-		echo "yes"
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
 	
-	echo -n "Checking for Subversion... "	
-	if ! foobar_loc="$(type -p svn)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
-		brew install svn
-	else
-		echo "yes"
-	fi
+#	echo -n "Checking for Subversion... "	
+#	if ! foobar_loc="$(type -p svn)" || [ -z "$foobar_loc" ]; then	
+#		echo "not fond, will be installed!" 
+#		brew install svn
+#	else
+#		echo "yes"
+#	fi
 	
-	echo -n "Checking for Gawk... "	
-	if ! foobar_loc="$(type -p gawk)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
+	echo -n "Checking for Gawk... " 2>&1 | tee -a $glb_build_log
+	if ! gawk_loc="$(type -p gawk)" || [ -z "$gawk_loc" ]; then	
+		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
 		brew install gawk
 	else
-		echo "yes"
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
 	
-	echo -n "Checking for Gettext... "	
-	if ! foobar_loc="$(type -p gettext)" || [ -z "$foobar_loc" ]; then	
-		echo "not fond, will be installed!" 
+	echo -n "Checking for Gettext... " 2>&1 | tee -a $glb_build_log
+	if ! gettext_loc="$(type -p gettext)" || [ -z "$gettext_loc" ]; then	
+		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
 		brew install gettext
 		brew link gettext --force
 	else
-		echo "yes"
+		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
 		
 	package_manager_addlinks
 }
 
+##
+## Add symbolic links to GNU Tolls to overwrite the Apple once
+##
 package_manager_addlinks(){
 	
-	echo -n "Adding temporary symbolic links... "
+	echo -n "Adding temporary symbolic links... " 2>&1 | tee -a $glb_build_log
 	# relink brew stuf
 	ln -sf /usr/local/bin/gsed /usr/local/bin/sed 
-	ln -sf /usr/local/bin/ggrep /usr/local/bin/grep 
+	if ggrep_loc="$(type -p ggrep)" || [ -z "$ggrep_loc" ]; then	
+		ln -sf /usr/local/bin/ggrep /usr/local/bin/grep 
+	elif fgrep_loc="$(type -p fgrep)" || [ -z "$fgrep_loc" ]; then	
+		ln -sf /usr/local/bin/fgrep /usr/local/bin/grep 
+	fi	
 	ln -sf /usr/local/bin/${glb_cc} /usr/local/bin/gcc
 	ln -sf /usr/local/bin/${glb_cxx} /usr/local/bin/g++
 	ln -sf /usr/local/bin/${glb_cpp} /usr/local/bin/cpp
@@ -81,12 +102,15 @@ package_manager_addlinks(){
 #	ln -sf /usr/local/bin/${glb_nm} /usr/local/bin/nm
 #	ln -sf /usr/local/bin/${glb_ranlib} /usr/local/bin/ranlib
 
-	echo "done"
+	echo "done" 2>&1 | tee -a $glb_build_log
 }
 
+##
+## Remove symbolic links to GNU Tolls
+##
 package_manager_dellinks(){
 	
-	echo -n "Remove temporary symbolic links... "
+	echo -n "Remove temporary symbolic links... " 2>&1 | tee -a $glb_build_log
 	# relink brew stuf
 	rm /usr/local/bin/sed 
 	rm /usr/local/bin/grep
@@ -97,7 +121,7 @@ package_manager_dellinks(){
 #	rm /usr/local/bin/nm
 #	rm /usr/local/bin/ranlib
 
-	echo "done"
+	echo "done" 2>&1 | tee -a $glb_build_log
 }
 
 ## Test if package manager is installed
@@ -106,13 +130,18 @@ package_manager_test(){
 	name=$1
 	retval=1
 		
-	if ! foobar_loc="$(type -p $name)" || [ -z "$foobar_loc" ]; then	
+	if ! pmt="$(type -p $name)" || [ -z "pmt" ]; then	
 		retval=0
 	fi
 	
 	return $retval
 }
 
+
+##
+## Test if Fink is installed 
+## The script is terminated here, because i am not able to test it with the Fink tools.
+##
 package_manager_fink(){
 	
 	package_manager_test "fink"
@@ -129,6 +158,10 @@ package_manager_fink(){
 	fi
 }
 
+##
+## Test if MacPort is installed 
+## The script is terminated here, because i am not able to test it with the MacPort tools.
+##
 package_manager_port(){
 	
 	package_manager_test "port"
@@ -145,6 +178,10 @@ package_manager_port(){
 	fi
 }
 
+##
+## Test if Homebrew is installed 
+## If Homebrew, Fink and Macport are not installd, try to install Homebrew
+##
 package_manager_brew(){
 	
 	echo -n "Checking for Package Manager Brew... "
@@ -168,8 +205,19 @@ package_manager_brew(){
 	fi
 }
 
+##
+## Try to install Homebrew
+##
 package_manager_install(){
-	echo "Installing Brew..."
+	
+	echo "Installing Homebrew..."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" || exit 1
-	echo "Brew successfully installed"
+	
+	brew doctor
+	brew untap homebrew/dupes
+	brew untap homebrew/versions
+	#brew tap versions
+	brew update
+	
+	echo "Homebrew successfully installed"
 }

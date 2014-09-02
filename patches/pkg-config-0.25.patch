@@ -1,0 +1,27 @@
+diff -rupN pkg-config-0.25-ori/glib-1.2.10/gmain.c pkg-config-0.25/glib-1.2.10/gmain.c
+--- pkg-config-0.25-ori/glib-1.2.10/gmain.c	2001-02-27 07:00:21.000000000 +0100
++++ pkg-config-0.25/glib-1.2.10/gmain.c	2014-08-31 10:41:37.000000000 +0200
+@@ -45,6 +45,7 @@
+ #include <sys/time.h>
+ #endif /* HAVE_SYS_TIME_H */
+ #ifdef GLIB_HAVE_SYS_POLL_H
++#include <poll.h>
+ #  include <sys/poll.h>
+ #  undef events	 /* AIX 4.1.5 & 4.3.2 define this for SVR3,4 compatibility */
+ #  undef revents /* AIX 4.1.5 & 4.3.2 define this for SVR3,4 compatibility */
+diff -rupN pkg-config-0.25-ori/pkg.c pkg-config-0.25/pkg.c
+--- pkg-config-0.25-ori/pkg.c	2010-05-08 22:14:17.000000000 +0200
++++ pkg-config-0.25/pkg.c	2014-08-31 10:41:56.000000000 +0200
+@@ -482,9 +482,9 @@ string_list_to_string (GSList *list)
+   while (tmp != NULL) {
+     char *tmpstr = (char*) tmp->data;
+     if (pcsysrootdir != NULL &&
+-	tmpstr[0] == '-' &&
+-	(tmpstr[1] == 'I' ||
+-	 tmpstr[1] == 'L')) {
++        (strncmp(tmpstr, "-I", 2) == 0 ||
++         strncmp(tmpstr, "-L", 2) == 0)
++        && strncmp(tmpstr+2, "/usr", 4) == 0) {
+       g_string_append_c (str, '-');
+       g_string_append_c (str, tmpstr[1]);
+       g_string_append (str, pcsysrootdir);

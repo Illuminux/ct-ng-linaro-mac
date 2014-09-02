@@ -1,0 +1,115 @@
+diff -rupN gdb-linaro-7.6.1-2013.10-ori/gdb/configure gdb-linaro-7.6.1-2013.10/gdb/configure
+--- gdb-linaro-7.6.1-2013.10-ori/gdb/configure	2013-10-15 09:50:56.000000000 +0200
++++ gdb-linaro-7.6.1-2013.10/gdb/configure	2014-08-31 10:36:25.000000000 +0200
+@@ -12569,13 +12569,13 @@ esac
+   # points somewhere with bfd, with -I/foo/lib and -L/foo/lib.  We
+   # always want our bfd.
+   CFLAGS="-I${srcdir}/../include -I../bfd -I${srcdir}/../bfd $CFLAGS"
+-  LDFLAGS="-L../bfd -L../libiberty $LDFLAGS"
++  LDFLAGS="-L../bfd -L../libiberty -L../intl $LDFLAGS"
+   intl=`echo $LIBINTL | sed 's,${top_builddir}/,,g'`
+   # -ldl is provided by bfd/Makfile.am (LIBDL) <PLUGINS>.
+   if test "$plugins" = "yes"; then
+     LIBS="-ldl $LIBS"
+   fi
+-  LIBS="-lbfd -liberty $intl $LIBS"
++  LIBS="-lbfd -liberty -lintl $intl $LIBS"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ELF support in BFD" >&5
+ $as_echo_n "checking for ELF support in BFD... " >&6; }
+ if test "${gdb_cv_var_elf+set}" = set; then :
+diff -rupN gdb-linaro-7.6.1-2013.10-ori/gdb/gnulib/import/Makefile.in gdb-linaro-7.6.1-2013.10/gdb/gnulib/import/Makefile.in
+--- gdb-linaro-7.6.1-2013.10-ori/gdb/gnulib/import/Makefile.in	2013-10-15 09:50:56.000000000 +0200
++++ gdb-linaro-7.6.1-2013.10/gdb/gnulib/import/Makefile.in	2014-08-31 10:36:39.000000000 +0200
+@@ -552,7 +552,7 @@ EXTRA_DIST = m4/gnulib-cache.m4 alloca.c
+ # 'all' defined above.
+ BUILT_SOURCES = $(ALLOCA_H) configmake.h $(FNMATCH_H) inttypes.h \
+ 	arg-nonnull.h c++defs.h warn-on-use.h $(STDBOOL_H) $(STDDEF_H) \
+-	$(STDINT_H) string.h wchar.h wctype.h
++	$(STDINT_H) string.h
+ SUFFIXES = .sed .sin
+ MOSTLYCLEANFILES = core *.stackdump alloca.h alloca.h-t fnmatch.h \
+ 	fnmatch.h-t inttypes.h inttypes.h-t arg-nonnull.h \
+diff -rupN gdb-linaro-7.6.1-2013.10-ori/gdb/gnulib/import/mbsrtowcs.c gdb-linaro-7.6.1-2013.10/gdb/gnulib/import/mbsrtowcs.c
+--- gdb-linaro-7.6.1-2013.10-ori/gdb/gnulib/import/mbsrtowcs.c	2013-10-15 09:50:56.000000000 +0200
++++ gdb-linaro-7.6.1-2013.10/gdb/gnulib/import/mbsrtowcs.c	2014-08-31 10:37:09.000000000 +0200
+@@ -28,5 +28,6 @@
+ 
+ 
+ extern mbstate_t _gl_mbsrtowcs_state;
+-
++#ifndef _WIN32
+ #include "mbsrtowcs-impl.h"
++#endif
+diff -rupN gdb-linaro-7.6.1-2013.10-ori/gdb/main.c gdb-linaro-7.6.1-2013.10/gdb/main.c
+--- gdb-linaro-7.6.1-2013.10-ori/gdb/main.c	2013-10-15 09:50:56.000000000 +0200
++++ gdb-linaro-7.6.1-2013.10/gdb/main.c	2014-08-31 10:36:09.000000000 +0200
+@@ -297,6 +297,8 @@ typedef struct cmdarg {
+ /* Define type VEC (cmdarg_s).  */
+ DEF_VEC_O (cmdarg_s);
+ 
++#define LIBINTL_RELATIVE_DIR "../share/locale"
++
+ static int
+ captured_main (void *data)
+ {
+@@ -356,7 +358,31 @@ captured_main (void *data)
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   bfd_init ();
+diff -rupN gdb-linaro-7.6.1-2013.10-ori/readline/terminal.c gdb-linaro-7.6.1-2013.10/readline/terminal.c
+--- gdb-linaro-7.6.1-2013.10-ori/readline/terminal.c	2013-10-15 09:50:56.000000000 +0200
++++ gdb-linaro-7.6.1-2013.10/readline/terminal.c	2014-08-31 10:36:51.000000000 +0200
+@@ -524,20 +524,24 @@ _rl_init_terminal_io (terminal_name)
+       /* Reasonable defaults for tgoto().  Readline currently only uses
+          tgoto if _rl_term_IC or _rl_term_DC is defined, but just in case we
+          change that later... */
++#if BROKEN_LSB
+       PC = '\0';
+       BC = _rl_term_backspace = "\b";
+       UP = _rl_term_up;
++#endif
+ 
+       return 0;
+     }
+ 
+   get_term_capabilities (&buffer);
+ 
++#if BROKEN_LSB
+   /* Set up the variables that the termcap library expects the application
+      to provide. */
+   PC = _rl_term_pc ? *_rl_term_pc : 0;
+   BC = _rl_term_backspace;
+   UP = _rl_term_up;
++#endif
+ 
+   if (!_rl_term_cr)
+     _rl_term_cr = "\r";

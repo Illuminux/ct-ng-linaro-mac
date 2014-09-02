@@ -11,12 +11,18 @@ Just run the script in the top level directory of the repo
 
 `$ ./build-arm-toolchain.sh`
 
-Aafter the build script was successful executed, ARM Linux Cross-Toolchain are placed in `/usr/local/arm-linux-hf`.
+Aafter the build script was successful executed, ARM Linux Cross-Toolchain are placed in `/usr/local/gcc-arm-linux-gnueabihf`.
 
 
-Dependencies:
+<b>Dependencies:</b>
 - [Xcode Command Line Tools](https://developer.apple.com/xcode/)
 - [Homebrew](https://github.com/Homebrew/homebrew)
 
 *Dependency will be installed automatically*
 
+
+<b>Features:</b>
+- GNU Binutils
+- GNU Compiler Collection C/C++ and Fortran
+- GDB GNU Project Debugger
+- pkg-config
