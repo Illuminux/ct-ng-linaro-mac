@@ -998,10 +998,10 @@ build_gcc1(){
 	# Install static gcc
 	echo -n "Install static GCC... " 2>&1 | tee -a $glb_build_log
 	make install-gcc >> ${glb_log_path}/gcc1.log 2>&1 || exit 1
-	ln -sf \
-		${glb_build_path}/gcc-core-static/bin/arm-linux-gnueabihf-gcc  \
-		${glb_build_path}/gcc-core-static/bin/arm-linux-gnueabihf-cc 
 	echo "done" 2>&1 | tee -a $glb_build_log
+	
+	cd ${glb_build_path}/gcc-core-static/bin
+	ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 
 }
 
 
@@ -1086,11 +1086,12 @@ build_gcc2(){
 		# install gcc part 2
 		echo -n "Install shared core C compiler... " 2>&1 | tee -a $glb_build_log
 		make install-gcc install-target-libgcc >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		ln -sf \
-			${glb_build_path}/gcc-core-shared/bin/arm-linux-gnueabihf-gcc  \
-			${glb_build_path}/gcc-core-shared/bin/arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
 		make all >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
 		echo "done"  2>&1 | tee -a $glb_build_log
+		
+		
+		cd ${glb_build_path}/gcc-core-shared/bin
+		ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
 				
 	else
 		echo "Error: ${glb_download_path}/${glb_gcc_arch} not found" 2>&1 | tee -a $glb_build_log
@@ -1182,9 +1183,8 @@ build_gcc3(){
 			echo "skipped - MacTeX is not installed" 2>&1 | tee -a $glb_build_log
 		fi
 		
-		ln -sf \
-			${glb_prefix}/bin/arm-linux-gnueabihf-gcc \
-			${glb_prefix}/bin/arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
+		cd ${glb_prefix}/bin
+		ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
 				
 	else
 		echo "Error: ${glb_download_path}/${glb_gcc_arch} not found" 2>&1 | tee -a $glb_build_log

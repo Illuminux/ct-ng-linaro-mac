@@ -91,81 +91,78 @@ echo "Start build process. This may take several hours!"
 echo
 
 # Create directories
-#create_dir_structure
+create_dir_structure
 
 # Check if command line tools are installed. If not, installe them.
-#check_for_Command_Line_Tools
+check_for_Command_Line_Tools
 
 # serach for installed packagmanager
 # - abort on fink/port
 # - install brew if not found
-#package_manager
+package_manager
 
 # create a case sensitiv disk image 
-#create_image
+create_image
 
 # get Linaro crosscompiler sources 
-#download_sources
+download_sources
 
 # Build sysroot
-#build_sysroot
+build_sysroot
 
 # Build Binutils
-#build_gmp
+build_gmp
 
 # Build mpfr
-#build_mpfr
+build_mpfr
 
 # Build isl
-#build_isl
+build_isl
 
 # Build cloog
-#build_cloog
+build_cloog
 
 # Build mpc
-#build_mpc
+build_mpc
 
 # Build zlib
-#build_zlib
+build_zlib
 
 # Build Binutils
-#build_binutils
+build_binutils
 
 # Build GCC Part 1 static core C compiler
-#build_gcc1
+build_gcc1
 
 # Build Linux Kernel Source and Headers
-#build_kernel
+build_kernel
 
 # Rebuild sysroot
-#build_sysroot
+build_sysroot
 
 # Build gcc part 2 shared core C compiler
-#build_gcc2
+build_gcc2
 
 # Build Embedded GLIBC
-#build_eglibc
+build_eglibc
 
 # Build gcc part 3
-#build_gcc3
+build_gcc3
 
 # Build ncurses
-#build_ncurses
+build_ncurses
 
 # Build eXpat
-#build_expat
+build_expat
 
 # Build gdb 
-#build_gdb
+build_gdb
 
 # Build pkgconf
-#build_pkgconf
+build_pkgconf
 
 # remove temporrery links
-#package_manager_dellinks
-
-# Build Embedded GLIBC
-#build_eglibc
+package_manager_dellinks
 
 # Stripping all toolchain executables
 strip_bin
@@ -175,5 +172,12 @@ finish_build
 echo ""
 echo "ARM Linux Cross-Toolchain for Mac OS X was build successfully."
 echo "You can find them in: "
-echo "   '${glb_build_path}'."
+echo "   '${glb_prefix}'"
+echo 
+echo "You will also find a compressed archive of the tool-chains in your build directory."
 echo ""
+echo "Have fun with it!" 
+echo
+echo "Please report bugs to:"
+echo "   '$BUGURL'"
+echo 

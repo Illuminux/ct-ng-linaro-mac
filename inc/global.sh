@@ -90,6 +90,9 @@ create_dir_structure(){
 	mkdir -p ${glb_log_path} || exit 1
 	touch ${glb_build_log}
 	echo "done" 
+	
+	rm -f "$BASEPATH/${glb_build_name}-mac.zip"
+	rm -f "$BASEPATH/${glb_build_name}.dmg"
 }
 
 
@@ -151,19 +154,19 @@ strip_bin(){
 	# Stripping files in bin
 	FILES="${glb_prefix}/bin/*"
 	for f in $FILES; do
-		gstrip --strip-all -v $f >/dev/null 2>&1 >> $glb_build_log
+		strip $f >/dev/null 2>&1 >> $glb_build_log
 	done
 	
 	# Stripping files in TARGET/bin
 	FILES="${glb_prefix}/${glb_target}/bin/*"
 	for f in $FILES; do
-		gstrip --strip-all -v $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
+		strip $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
 	done
 	
 	# Stripping files in libexec/gcc/TARGET
 	FILES="${glb_prefix}/libexec/gcc/${glb_target}/4.8.2/*"
 	for f in $FILES; do
-		gstrip --strip-all -v $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
+		strip $f >/dev/null >/dev/null 2>&1 >> $glb_build_log
 	done
 	
 	echo "done"
@@ -175,23 +178,93 @@ strip_bin(){
 ##
 finish_build(){
 	
+	cd ${BASEPATH}
+
+	# Create compressed archive
+	echo -n "Create compressed archive... " 
+	mkdir -p "${BASEPATH}/image"
+	mv ${glb_prefix} "${BASEPATH}/image/${glb_build_name}"
+	hdiutil \
+		create "./${glb_build_name}.dmg" \
+		-srcfolder "${BASEPATH}/image" \
+		-volname ${glb_build_name}  >/dev/null 2>&1
+	zip -r -X "${glb_build_name}-mac.zip" "${glb_build_name}.dmg" >/dev/null
+	rm -rf "${glb_build_name}.dmg" >/dev/null 2>&1
+	mv "${BASEPATH}/image/${glb_build_name}" ${glb_prefix}
+	rm -rf "${BASEPATH}/image"
+	echo "done" 
+	
 	cd $BASEPATH
 	
-	echo -n "Create compressed archive... " 
-	tar -cJPf ./${glb_build_name}.tar.xz ${glb_build_path} >/dev/null 2>&1 || exit 1
-	echo "done" 
-
-	cd $BASEPATH
-
-	echo -n "Unmount build image... " 
-	hdiutil detach ${glb_prefix} >/dev/null 2>&1
+	echo "Cleaning-up the build directory:"
+	
+	# Compress all log files 
+	echo -n "Compress log files... " 
+	FILES="${glb_log_path}/*.log"
+	for f in $FILES; do
+		zip -X "${f}.zip" $f >/dev/null 2>&1
+		rm -f $f >/dev/null 2>&1
+	done
+	echo "done"
+	
+	echo -n "Delete unnecessary archives from the download directory... " 
+	FILES="${glb_download_path}/*"
+	for f in $FILES; do
+		
+		if [ $f != "${glb_download_path}/${glb_linaro_src1_arch}" ] \
+		&& [ $f != "${glb_download_path}/${glb_linaro_src2_arch}" ] \
+		&& [ $f != "${glb_download_path}/${glb_zlib_arch}" ] \
+		&& [ $f != "${glb_download_path}/${glb_ncurses_arch}" ] ; then
+			rm -rf $f >/dev/null 2>&1
+		fi
+	done
+	echo "done"
+	
+	echo -n "Delete build directory... " 
+	rm -rf $glb_build_path >/dev/null 2>&1
+	echo "done"
+	
+	while true; do
+		read -p "Delete source directory? [Y/n] " Yn
+		Yn=${Yn:-Y}
+		case $Yn in
+			[Yy]* ) \
+				echo -n "Delete source directory... "; \
+				rm -rf $glb_source_path; \
+				echo "done"; break;;
+			[Nn]* ) break;;
+				* ) echo "Please answer Y (Yes) or n (No).";;
+		esac
+	done
+	
+	echo -n "Unmount image... " 
+	hdiutil detach $glb_disk_image_path >/dev/null 2>&1
 	echo "done" 
 	
 	while true; do
-		read -p "Should the build image be deleted? [y/N] " yN
-		yN=${yN:-N}
-		case $yN in
-			[Yy]* ) echo "remove image"; break;;
+		read -p "Delete Case-Sensitive Disk Image? [Y/n] " Yn
+		Yn=${Yn:-Y}
+		case $Yn in
+			[Yy]* ) echo -n "Delete disk image... "; \
+			rm -rf "${glb_disk_image_name}.sparseimage"; \
+			echo "done"; break;;
+			[Nn]* ) break;;
+				* ) echo "Please answer Y (Yes) or n (No).";;
+		esac
+	done
+	
+	cd $BASEPATH
+	
+	while true; do
+		read -p "Install tool-chains now? [Y/n] " Yn
+		Yn=${Yn:-Y}
+		case $Yn in
+			[Yy]* ) \
+				echo -n "Install tool-chains... "; \
+				mv "./${glb_build_name}" "./gcc-${glb_target}"; \
+				mv "gcc-${glb_target}" "/usr/local/";\
+				glb_prefix="/usr/local/gcc-${glb_target}"
+				echo "done"; break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;
 		esac
