@@ -1,5 +1,9 @@
 #!/bin/bash
-
+#
+# This is a part of ARM Linux Cross-Toolchain for Mac OS X build script
+#
+# Copyright (C) 2014  Knut Welzel
+#
 
 ##
 ## Build sysroot
@@ -671,13 +675,19 @@ build_binutils(){
 	# install binutils
 	echo -n "Install Binutils Documentation... " 2>&1 | tee -a $glb_build_log
 	
+	
+	
 	if tex_loc="$(type -p tex)" || [ -z "tex_loc" ]; then	
 		
 		make -j2 pdf html >> ${glb_log_path}/binutils.log
 		make install-pdf-gas install-pdf-binutils install-pdf-ld install-pdf-gprof install-html-gas install-html-binutils install-html-ld install-html-gprof >> ${glb_log_path}/binutils.log
 		echo "done" 2>&1 | tee -a $glb_build_log
 	else
-		echo "skipped - MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+		
+		make -j2 html >> ${glb_log_path}/binutils.log
+		make install-html-gas install-html-binutils install-html-ld install-html-gprof >> ${glb_log_path}/binutils.log
+		echo "done" 2>&1 | tee -a $glb_build_log
+		echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
 	fi
 }
 
@@ -1180,7 +1190,10 @@ build_gcc3(){
 			make install-pdf-gcc install-html-gcc >> ${glb_log_path}/gcc3.log
 			echo "done" 2>&1 | tee -a $glb_build_log
 		else
-			echo "skipped - MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+		
+			make html >> ${glb_log_path}/gcc3.log
+			make install-html-gcc >> ${glb_log_path}/gcc3.log
+			echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
 		fi
 		
 		cd ${glb_prefix}/bin
@@ -1434,11 +1447,15 @@ build_gdb(){
 	echo -n "Install gdb documentation... " 2>&1 | tee -a $glb_build_log
 
 	if tex_loc="$(type -p tex)" || [ -z "tex_loc" ]; then	
+		
 		make -j2 pdf html  >> ${glb_log_path}/gdb.log
 		make install-pdf-gdb install-html-gdb >> ${glb_log_path}/gdb.log
 		echo "done" 2>&1 | tee -a $glb_build_log
 	else
-		echo "skipped - MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+		
+		make -j2 html  >> ${glb_log_path}/gdb.log
+		make install-html-gdb >> ${glb_log_path}/gdb.log
+		echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
 	fi
 }
 

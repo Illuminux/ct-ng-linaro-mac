@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# This is a part of ARM Linux Cross-Toolchain for Mac OS X build script
+#
+# Copyright (C) 2014  Knut Welzel
+#
 
 ##
 ## Create an case senitive disk image and mount it to /Volumes/[ImageName]

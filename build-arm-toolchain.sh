@@ -167,6 +167,7 @@ package_manager_dellinks
 # Stripping all toolchain executables
 strip_bin
 
+# Cleanup build directory and install tool-chains
 finish_build
 
 echo ""

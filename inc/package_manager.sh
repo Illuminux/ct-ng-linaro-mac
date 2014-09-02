@@ -1,4 +1,9 @@
 #!/bin/bash
+#
+# This is a part of ARM Linux Cross-Toolchain for Mac OS X build script
+#
+# Copyright (C) 2014  Knut Welzel
+#
 
 ##
 ## serach for installed packagmanager
