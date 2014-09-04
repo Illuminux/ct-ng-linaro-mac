@@ -19,14 +19,6 @@ package_manager(){
 	
 	package_manager_brew
 	
-	echo -n "Checking for GNU wget... " 2>&1 | tee -a $glb_build_log
-	if ! wget_loc="$(type -p wget)" || [ -z "$wget_loc" ]; then	
-		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
-		brew install wget
-	else
-		echo "yes" 2>&1 | tee -a $glb_build_log
-	fi
-	
 	echo -n "Checking for GNU grep... " 2>&1 | tee -a $glb_build_log
 	if ggrep_loc="$(type -p ggrep)" || [ -z "$ggrep_loc" ]; then	
 		echo "yes" 2>&1 | tee -a $glb_build_log
@@ -53,14 +45,6 @@ package_manager(){
 	else
 		echo "yes" 2>&1 | tee -a $glb_build_log
 	fi
-	
-#	echo -n "Checking for Subversion... "	
-#	if ! foobar_loc="$(type -p svn)" || [ -z "$foobar_loc" ]; then	
-#		echo "not fond, will be installed!" 
-#		brew install svn
-#	else
-#		echo "yes"
-#	fi
 	
 	echo -n "Checking for Gawk... " 2>&1 | tee -a $glb_build_log
 	if ! gawk_loc="$(type -p gawk)" || [ -z "$gawk_loc" ]; then	

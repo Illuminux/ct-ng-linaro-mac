@@ -15,29 +15,6 @@ build_sysroot(){
 	# Go into download dir
 	cd $glb_download_path
 
-	# Check if sysroot archive exists 
-	if [ ! -f "${glb_sysroot_arch}" ]; then
-		echo "*** Error *** ${glb_sysroot_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if sysroot archive is not corrupted
-	echo -n "md5 check of ${glb_sysroot_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_sysroot_arch}) = ${glb_sysroot_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract sysroot if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_sysroot_name}" ]; then
-		
-		echo -n "Extracting sysroot... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_sysroot_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-	fi
-
 	# install sysroot
 	echo -n "Install sysroot... " 2>&1 | tee -a $glb_build_log
 	
@@ -64,43 +41,6 @@ build_gmp(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-
-	# Check if gmp archive exists 
-	if [ ! -f "${glb_gmp_arch}" ]; then
-		echo "*** Error *** ${glb_gmp_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if gmp archive is not corrupted
-	echo -n "md5 check of ${glb_gmp_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_gmp_arch}) = ${glb_gmp_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract gmp if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_gmp_name}" ]; then
-		
-		echo -n "Extracting gmp... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_gmp_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_gmp_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_gmp_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_gmp_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_gmp_name}.patch >> $glb_build_log 2>&1 || exit 1
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_gmp_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_gmp_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_gmp_name}/build >> ${glb_log_path}/gmp.log 2>&1 || exit 1
@@ -142,43 +82,6 @@ build_mpfr(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if mpfr archive exists 
-	if [ ! -f "${glb_mpfr_arch}" ]; then
-		echo "*** Error *** ${glb_mpfr_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if mpfr archive is not corrupted
-	echo -n "md5 check of ${glb_mpfr_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_mpfr_arch}) = ${glb_mpfr_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract mpfr if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_mpfr_name}" ]; then
-		
-		echo -n "Extracting mpfr... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_mpfr_arch} >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_mpfr_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_mpfr_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_mpfr_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_mpfr_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_mpfr_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_mpfr_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_mpfr_name}/build >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
@@ -220,42 +123,6 @@ build_isl(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if isl archive exists 
-	if [ ! -f "${glb_isl_arch}" ]; then
-		echo "*** Error *** ${glb_isl_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if isl archive is not corrupted
-	echo -n "md5 check of ${glb_isl_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_isl_arch}) = ${glb_isl_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract isl if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_isl_name}" ]; then
-		echo -n "Extracting isl... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_isl_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_isl_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_isl_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_isl_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_isl_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_isl_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_isl_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_isl_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -297,43 +164,6 @@ build_cloog(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if cloog archive exists 
-	if [ ! -f "${glb_cloog_arch}" ]; then
-		echo "*** Error *** ${glb_cloog_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if cloog archive is not corrupted
-	echo -n "md5 check of ${glb_cloog_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_cloog_arch}) = ${glb_cloog_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract cloog if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_cloog_name}" ]; then
-
-		echo -n "Extracting cloog... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_cloog_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_cloog_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_cloog_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_cloog_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_cloog_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_cloog_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_cloog_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_cloog_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -375,43 +205,6 @@ build_mpc(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if mpc archive exists 
-	if [ ! -f "${glb_mpc_arch}" ]; then
-		echo "*** Error *** ${glb_mpc_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if mpc archive is not corrupted
-	echo -n "md5 check of ${glb_mpc_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_mpc_arch}) = ${glb_mpc_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract mpc if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_mpc_name}" ]; then
-		
-		echo -n "Extracting mpc... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_mpc_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_mpc_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_mpc_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_mpc_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_mpc_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_mpc_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_mpc_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_mpc_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -453,40 +246,6 @@ build_zlib(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if zlib archive exists 
-	if [ ! -f "${glb_zlib_arch}" ]; then
-		echo "*** Error *** ${glb_zlib_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if zlib archive is not corrupted
-	echo -n "md5 check of ${glb_zlib_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_zlib_arch}) = ${glb_zlib_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# remove old zlib
-	cd ${glb_source_path}
-	if [ -d "${glb_source_path}/${glb_zlib_name}" ]; then
-	
-		rm -rf ${glb_source_path}/${glb_zlib_name}
-	fi
-	
-	echo -n "Extracting zlib... " 2>&1 | tee -a $glb_build_log
-	tar xjf ${glb_download_path}/${glb_zlib_arch} >> $glb_build_log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
-	
-	# Patching 
-	if [ -f "${glb_patch_path}/${glb_zlib_name}.patch" ]; then
-		
-		echo -n "Patching ${glb_zlib_name}... " 2>&1 | tee -a $glb_build_log
-		cd ${glb_source_path}/${glb_zlib_name}
-		patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_zlib_name}.patch >> $glb_build_log
-		echo "done" 2>&1 | tee -a $glb_build_log
-	fi
 
 	cd ${glb_source_path}/${glb_zlib_name}
 
@@ -522,40 +281,6 @@ build_kernel(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# check if kernel source tar exist
-	if [ ! -f "${glb_kernel_arch}" ]; then
-		echo "*** Error *** ${glb_kernel_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-
-	# Test if Linaro kernel sources archive is not corrupted
-	echo -n "md5 check of ${glb_kernel_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_kernel_arch}) = ${glb_kernel_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-	
-	# Remove old builded kernel sources
-	cd ${glb_kernel_source_path}
-	if [ -d "${glb_kernel_name}" ]; then
-		rm -rf ${glb_kernel_source_path}/${glb_kernel_name} 
-	fi
-
-	# Extract kernel sources
-	echo -n "Extracting Kernel... " 2>&1 | tee -a $glb_build_log
-	tar xjf ${glb_download_path}/${glb_kernel_arch} >> $glb_build_log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
-	
-	# Patching 
-	if [ -f "${glb_patch_path}/${glb_kernel_name}.patch" ]; then
-		
-		echo -n "Patching ${glb_kernel_name}... " 2>&1 | tee -a $glb_build_log
-		cd ${glb_source_path}/${glb_kernel_name}
-		patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_kernel_name}.patch >> $glb_build_log
-		echo "done" 2>&1 | tee -a $glb_build_log
-	fi
 
 	# Go into kernel source directory
 	cd ${glb_kernel_source_path}/${glb_kernel_name}
@@ -597,43 +322,6 @@ build_binutils(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if binutil archive exists 
-	if [ ! -f "${glb_binutils_arch}" ]; then
-		echo "*** Error *** ${glb_binutils_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if binutils archive is not corrupted
-	echo -n "md5 check of ${glb_binutils_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_binutils_arch}) = ${glb_binutils_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract binutils if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_binutils_name}" ]; then
-		
-		echo -n "Extracting Binutils... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_binutils_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_binutils_name}.patch" ]; then
-		
-			echo -n "Patching ${glb_binutils_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_binutils_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_binutils_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_binutils_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_binutils_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_binutils_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -693,142 +381,6 @@ build_binutils(){
 
 
 ##
-## Extract Embedded GLIBC
-##
-#extract_eglibc(){
-#	
-#	echo "Extracting Embedded GLIBC..."
-#	
-#	# Go into download dir
-#	cd ${glb_download_path}
-#	
-#	# Check if eglibc archive exists
-#	if [ ! -f "${glb_eglibc_arch}" ]; then
-#		echo "Error: ${glb_eglibc_arch} not found!"
-#		exit 1
-#	fi
-#	
-#	# Test if eglibc archive is not corrupted
-#	echo -n "md5 check of ${glb_eglibc_arch}... "
-#	if [ ! $(md5 -q ${glb_download_path}/${glb_eglibc_arch}) = ${glb_eglibc_md5} ]; then
-#		echo "faild!"
-#		exit 1
-#	fi
-#	echo "passed"
-#	
-#	# extract eglibc if not already done
-#	cd ${glb_source_path}
-#	if [ ! -d "${glb_source_path}/${glb_eglibc_name}" ]; then
-#		
-#		echo -n "Extracting Embedded GLIBC... "
-#		tar xjf ${glb_download_path}/${glb_eglibc_arch} || exit 1
-#		echo "done"
-#		
-#		# Patching 
-#		if [ -f "${glb_patch_path}/${glb_eglibc_name}.patch" ]; then
-#		
-#			echo -n "Patching ${glb_eglibc_name}... "
-#			cd ${glb_source_path}/${glb_eglibc_name}
-#			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_eglibc_name}.patch
-#			echo "done"
-#		fi
-#	fi
-#}
-
-
-##
-## Build Embedded GLIBC
-##
-#build_eglibc(){
-#	
-#	echo "Building Embedded GLIBC..."
-#	
-#	echo `$TARGET-gcc --version`
-#	
-#	exit 0
-#	
-#	# Go into download dir
-#	cd ${glb_download_path}
-#	
-#	# Check if eglibc archive exists
-#	if [ ! -f "${glb_eglibc_arch}" ]; then
-#		echo "Error: ${glb_eglibc_arch} not found!"
-#		exit 1
-#	fi
-#	
-#	# Test if eglibc archive is not corrupted
-#	echo -n "md5 check of ${glb_eglibc_arch}... "
-#	if [ ! $(md5 -q ${glb_download_path}/${glb_eglibc_arch}) = ${glb_eglibc_md5} ]; then
-#		echo "faild!"
-#		exit 1
-#	fi
-#	echo "passed"
-#	
-#	# extract eglibc if not already done
-#	cd ${glb_source_path}
-#	if [ ! -d "${glb_source_path}/${glb_eglibc_name}" ]; then
-#		
-#		echo -n "Extracting Embedded GLIBC... "
-#		tar xjf ${glb_download_path}/${glb_eglibc_arch} || exit 1
-#		echo "done"
-#		
-#		# Patching 
-#		if [ -f "${glb_patch_path}/${glb_eglibc_name}.patch" ]; then
-#		
-#			echo -n "Patching ${glb_eglibc_name}... "
-#			cd ${glb_source_path}/${glb_eglibc_name}
-#			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_eglibc_name}.patch
-#			echo "done"
-#		fi
-#	else
-#		# remove old build
-#		if [ -d "${glb_source_path}/${glb_eglibc_name}/build" ]; then
-#			rm -rf ${glb_source_path}/${glb_eglibc_name}/build
-#		fi
-#	fi
-#	
-#	# create new build dir
-#	mkdir -p ${glb_source_path}/${glb_eglibc_name}/build
-#	cd ${glb_source_path}/${glb_eglibc_name}/build
-#	
-#	# configure eglibc 
-#	echo -n "Configure Embedded GLIBC... "
-#	CC=$TARGET-gcc \
-#	CXX=$TARGET-g++ \
-#	AR=$TARGET-ar \
-#	RANLIB=$TARGET-ranlib \
-#	CFLAGS="-I$PREFIX/include" \
-#	LDFLAGS="-L$PREFIX/lib -L/usr/local/lib -lintl" \
-#	../configure \
-#		--host=$TARGET \
-#		--prefix=$PREFIX \
-#		--with-headers=$PREFIX/include \
-#		--enable-add-ons \
-#		--without-gd \
-#		--without-cvs \
-#		--enable-obsolete-rpc \
-#		--disable-nls \
-#		--with-pkgversion="$BUILDVERSION" \
-#		--with-bugurl="$BUGURL" \
-#		libc_cv_forced_unwind=yes || exit 1
-#	# >/dev/null 2>&1 || exit 1
-#	echo "done"
-#	
-#	# build eglibc
-#	echo -n "Build Embedded GLIBC... "
-#	make || exit 1
-#	# >/dev/null 2>&1 || exit 1
-#	echo "done"
-#	
-#	# install eglibc
-#	echo -n "Install Embedded GLIBC... "
-#	make install || exit 1
-#	# >/dev/null 2>&1 || exit 1
-#	echo "done"
-#}
-
-
-##
 ## Build libiconv
 ##
 build_libiconv(){
@@ -837,43 +389,6 @@ build_libiconv(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if libiconv archive exists 
-	if [ ! -f "${glb_libiconv_arch}" ]; then
-		echo "*** Error *** ${glb_libiconv_arch} not found!"
-		exit 1
-	fi
-	
-	# Test if libiconv archive is not corrupted
-	echo -n "md5 check of ${glb_libiconv_arch}... "
-	if [ ! $(md5 -q ${glb_download_path}/${glb_libiconv_arch}) = ${glb_libiconv_md5} ]; then
-		echo "faild!"
-		exit 1
-	fi
-	echo "passed"
-
-	# extract libiconv if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_libiconv_name}" ]; then
-		
-		echo -n "Extracting libiconv... "
-		tar xjf ${glb_download_path}/${glb_libiconv_arch} || exit 1
-		echo "done"
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_libiconv_name}.patch" ]; then
-		
-			echo -n "Patching ${glb_libiconv_name}... "
-			cd ${glb_source_path}/${glb_libiconv_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_libiconv_name}.patch
-			echo "done"
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_libiconv_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_libiconv_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_libiconv_name}/build || exit 1
@@ -910,43 +425,6 @@ build_gcc1(){
 
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if gcc archive exists 
-	if [ ! -f "${glb_gcc_arch}" ]; then
-		echo "Error: ${glb_gcc_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if gcc archive is not corrupted
-	echo -n "md5 check of ${glb_gcc_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_gcc_arch}) = ${glb_gcc_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-	
-	# extract gcc if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_gcc_name}" ]; then
-		
-		echo -n "Extracting GCC... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_gcc_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_gcc_name}.patch" ]; then
-		
-			echo -n "Patching ${glb_gcc_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_gcc_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_gcc_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_gcc_name}/build1" ]; then
-			rm -rf ${glb_source_path}/${glb_gcc_name}/build1
-		fi
-	fi
 	
 	# get libc headers 
 	mkdir -p ${glb_build_path}/gcc-core-static/arm-linux-gnueabihf/include >> $glb_build_log 2>&1 || exit 1
@@ -1215,42 +693,6 @@ build_expat(){
 	# Go into download dir
 	cd ${glb_download_path}
 	
-	# Check if expat archive exists 
-	if [ ! -f "${glb_expat_arch}" ]; then
-		echo "*** Error *** ${glb_expat_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if expat archive is not corrupted
-	echo -n "md5 check of ${glb_expat_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_expat_arch}) = ${glb_expat_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract expat if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_expat_name}" ]; then
-		
-		echo -n "Extracting eXpat... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_expat_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_expat_name}.patch" ]; then
-		
-			echo -n "Patching ${glb_expat_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_expat_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_expat_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_expat_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_expat_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_expat_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -1290,43 +732,6 @@ build_ncurses(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-	
-	# Check if ncurses archive exists 
-	if [ ! -f "${glb_ncurses_arch}" ]; then
-		echo "*** Error *** ${glb_ncurses_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if ncurses archive is not corrupted
-	echo -n "md5 check of ${glb_ncurses_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_ncurses_arch}) = ${glb_ncurses_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract ncurses if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_ncurses_name}" ]; then
-		
-		echo -n "Extracting ncurses... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_ncurses_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_ncurses_name}.patch" ]; then
-		
-			echo -n "Patching ${glb_ncurses_name}... " >> $glb_build_log 2>&1 || exit 1
-			cd ${glb_source_path}/${glb_ncurses_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_ncurses_name}.patch >> $glb_build_log
-			echo "done" >> $glb_build_log 2>&1 || exit 1
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_ncurses_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_ncurses_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_ncurses_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -1368,42 +773,6 @@ build_gdb(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-
-	# Check if gdb archive exists 
-	if [ ! -f "${glb_gdb_arch}" ]; then
-		echo "*** Error *** ${glb_gdb_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1 2>&1 | tee -a $glb_build_log
-	fi
-	
-	# Test if gdb archive is not corrupted
-	echo -n "md5 check of ${glb_gdb_arch}... "
-	if [ ! $(md5 -q ${glb_download_path}/${glb_gdb_arch}) = ${glb_gdb_md5} ]; then 2>&1 | tee -a $glb_build_log
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract gdb if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_gdb_name}" ]; then
-		echo -n "Extracting gdb... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_gdb_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_gdb_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_gdb_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_gdb_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_gdb_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_gdb_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_gdb_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_gdb_name}/build >> $glb_build_log 2>&1 || exit 1
@@ -1469,42 +838,6 @@ build_pkgconf(){
 	
 	# Go into download dir
 	cd ${glb_download_path}
-
-	# Check if pkg-config archive exists 
-	if [ ! -f "${glb_pkgconf_arch}" ]; then
-		echo "*** Error *** ${glb_pkgconf_arch} not found!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	
-	# Test if pkg-config archive is not corrupted
-	echo -n "md5 check of ${glb_pkgconf_arch}... " 2>&1 | tee -a $glb_build_log
-	if [ ! $(md5 -q ${glb_download_path}/${glb_pkgconf_arch}) = ${glb_pkgconf_md5} ]; then
-		echo "faild!" 2>&1 | tee -a $glb_build_log
-		exit 1
-	fi
-	echo "passed" 2>&1 | tee -a $glb_build_log
-
-	# extract pkg-config if not already done
-	cd ${glb_source_path}
-	if [ ! -d "${glb_source_path}/${glb_pkgconf_name}" ]; then
-		echo -n "Extracting pkgconf... " 2>&1 | tee -a $glb_build_log
-		tar xjf ${glb_download_path}/${glb_pkgconf_arch} >> $glb_build_log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# Patching 
-		if [ -f "${glb_patch_path}/${glb_pkgconf_name}.patch" ]; then
-			
-			echo -n "Patching ${glb_pkgconf_name}... " 2>&1 | tee -a $glb_build_log
-			cd ${glb_source_path}/${glb_pkgconf_name}
-			patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${glb_pkgconf_name}.patch >> $glb_build_log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		fi
-	else
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_pkgconf_name}/build" ]; then
-			rm -rf ${glb_source_path}/${glb_pkgconf_name}/build
-		fi
-	fi
 
 	# create new build dir
 	mkdir -p ${glb_source_path}/${glb_pkgconf_name}/build >> $glb_build_log 2>&1 || exit 1

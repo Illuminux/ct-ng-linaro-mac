@@ -275,3 +275,77 @@ finish_build(){
 		esac
 	done
 }
+
+
+
+
+#
+# check md5 sum of an package archive
+#
+md5_test(){
+	
+	archive=$1
+	m5dsum=$2
+	
+	# Test if archive is corrupted
+	echo -n "md5 check of $1... "
+	if [ $(md5 -q "${glb_download_path}/${archive}") != "$m5dsum" ]; then
+		echo "faild"
+		echo "*** error md5 test of ${archive} faild ***"
+		exit 1
+	else
+		echo "passed"
+	fi
+}
+
+
+#
+# extract an package archive
+#
+extract_archive(){
+	
+	kind=$1
+	name=$2
+	archive="${name}${kind}"
+	
+	
+	# remove existing directory
+	if [ -d "${glb_source_path}/${name}" ]; then
+		
+		if [ -d "${glb_source_path}/${name}/.build" ]; then
+			echo -n "Remove existing build directory... "
+			rm -rf "${glb_source_path}/${name}/.build"
+		else
+			echo -n "Remove existing directory... "
+			rm -rf "${glb_source_path}/${name}"
+		fi
+			
+		echo "done"
+		
+	fi
+		
+	echo -n "Extracting ${archive}... "
+	tar \
+		xf "${glb_download_path}/${archive}" \
+		-C "${glb_source_path}" \
+		>/dev/null 2>&1 || (echo "faild"; exit 1)
+	echo "done"
+}
+
+
+#
+# patching extract package
+#
+patch_package(){
+
+	name=$1
+	
+	if [ -f "${glb_patch_path}/${name}.patch" ]; then
+
+		echo -n "Patch ${name}... "
+		cd "${glb_source_path}/${name}"
+		patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${name}.patch >/dev/null 2>&1
+		echo "done"
+		
+	fi
+}

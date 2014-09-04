@@ -94,19 +94,19 @@ echo
 create_dir_structure
 
 # Check if command line tools are installed. If not, installe them.
-check_for_Command_Line_Tools
+#check_for_Command_Line_Tools
 
 # serach for installed packagmanager
 # - abort on fink/port
 # - install brew if not found
-package_manager
+#package_manager
 
 # create a case sensitiv disk image 
-create_image
+#create_image
 
 # get Linaro crosscompiler sources 
 download_sources
-
+exit
 # Build sysroot
 build_sysroot
 
