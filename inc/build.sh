@@ -54,8 +54,8 @@ build_gmp(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--prefix=${glb_build_path}/static
 		--enable-fft
 		--enable-mpbsd
@@ -87,8 +87,8 @@ build_mpfr(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--prefix=${glb_build_path}/static
 		--with-gmp=${glb_build_path}/static
 		--disable-shared
@@ -119,8 +119,8 @@ build_isl(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--prefix=${glb_build_path}/static
 		--with-gmp=${glb_build_path}/static
 		--disable-shared
@@ -151,8 +151,8 @@ build_cloog(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--prefix=${glb_build_path}/static
 		--with-gmp-prefix=${glb_build_path}/static
 		--with-isl-prefix=${glb_build_path}/static
@@ -185,8 +185,8 @@ build_mpc(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--prefix=${glb_build_path}/static
 		--with-gmp-prefix=${glb_build_path}/static
 		--with-mpfr-prefix=${glb_build_path}/static
@@ -255,8 +255,8 @@ build_binutils(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--target=$TARGET
 		--prefix=${glb_prefix}
 		--disable-multilib
@@ -266,10 +266,10 @@ build_binutils(){
 		--enable-threads
 		--with-float=hard
 		--with-sysroot="${glb_sysroot_path}/libc"
-		--with-pkgversion=$BUILDVERSION
-		--with-bugurl=$BUGURL
+		--with-pkgversion=$glb_build_version
+		--with-bugurl=$glb_bug_url
 	)
-#		--with-pkgversion="\"${BUILDVERSION}\""
+#		--with-pkgversion="\"${glb_build_version}\""
 #	)
 	
 	# build in dir
@@ -357,8 +357,8 @@ build_gcc(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--target=$TARGET
 		--prefix=${glb_prefix}
 		--with-sysroot="${glb_sysroot_path}/libc"
@@ -386,8 +386,8 @@ build_gcc(){
 		--enable-long-long
 		--with-mode=thumb
 		--with-float=hard
-		--with-pkgversion=$BUILDVERSION
-		--with-bugurl=$BUGURL
+		--with-pkgversion=$glb_build_version
+		--with-bugurl=$glb_bug_url
 	)
 	
 	# build in dir
@@ -427,8 +427,8 @@ build_expat(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--target=$TARGET
 		--prefix=${glb_build_path}/static
 		--disable-shared
@@ -456,8 +456,8 @@ build_ncurses(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--target=$TARGET
 		--prefix=${glb_build_path}/static
 		--disable-shared
@@ -488,8 +488,8 @@ build_gdb(){
 	
 	# configure args
 	build_args=(
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--target=$TARGET
 		--prefix=${glb_prefix}
 		--with-build-sysroot="${glb_sysroot_path}/libc"
@@ -500,8 +500,8 @@ build_gdb(){
 		--with-python=no
 		--with-libexpat-prefix="${glb_build_path}/static"
 		--disable-sim
-		--with-pkgversion=$BUILDVERSION
-		--with-bugurl=$BUGURL
+		--with-pkgversion=$glb_build_version
+		--with-bugurl=$glb_bug_url
 	)
 	
 	# build in dir
@@ -535,8 +535,8 @@ build_pkgconf(){
 	# configure args
 	build_args=(
 		--prefix=${glb_prefix}
-		--build=$BUILD
-		--host=$BUILD
+		--build=$glb_build
+		--host=$glb_build
 		--program-prefix="$TARGET-"
 		--program-suffix="-real"
 		--with-pc-path="${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 

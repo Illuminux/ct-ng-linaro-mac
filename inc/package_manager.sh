@@ -66,6 +66,8 @@ package_manager(){
 	package_manager_addlinks
 }
 
+
+
 ##
 ## Add symbolic links to GNU Tolls to overwrite the Apple once
 ##
@@ -89,6 +91,8 @@ package_manager_addlinks(){
 	echo "done" 2>&1 | tee -a $glb_build_log
 }
 
+
+
 ##
 ## Remove symbolic links to GNU Tolls
 ##
@@ -108,6 +112,8 @@ package_manager_dellinks(){
 	echo "done" 2>&1 | tee -a $glb_build_log
 }
 
+
+
 ## Test if package manager is installed
 package_manager_test(){
 	
@@ -120,6 +126,7 @@ package_manager_test(){
 	
 	return $retval
 }
+
 
 
 ##
@@ -142,6 +149,8 @@ package_manager_fink(){
 	fi
 }
 
+
+
 ##
 ## Test if MacPort is installed 
 ## The script is terminated here, because i am not able to test it with the MacPort tools.
@@ -161,6 +170,8 @@ package_manager_port(){
 		echo "not found"
 	fi
 }
+
+
 
 ##
 ## Test if Homebrew is installed 
@@ -188,6 +199,8 @@ package_manager_brew(){
 		done
 	fi
 }
+
+
 
 ##
 ## Try to install Homebrew
