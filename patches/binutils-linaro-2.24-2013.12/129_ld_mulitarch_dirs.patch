@@ -1,0 +1,86 @@
+# DP: Add multiarch directories to linker search path.
+
+Index: b/ld/genscripts.sh
+===================================================================
+--- a/ld/genscripts.sh	2012-07-04 08:28:08.000000000 +0000
++++ b/ld/genscripts.sh	2012-11-01 17:13:05.000000000 +0000
+@@ -242,6 +242,79 @@
+ fi
+ 
+ LIB_SEARCH_DIRS=`echo ${LIB_PATH} | sed -e 's/:/ /g' -e 's/\([^ ][^ ]*\)/SEARCH_DIR(\\"\1\\");/g'`
++if [ -n "$DEB_TARGET_MULTIARCH" ]; then
++    temp_dirs=' '
++    for dir in `echo ${LIB_PATH} | sed -e 's/:/ /g'`; do
++	case "$dir" in
++	    ${tool_lib}*|*/${target_alias}/*)
++	        ;;
++	    */lib)
++		if [ -n "$DEB_TARGET_MULTIARCH32" ]; then
++		    case $EMULATION_NAME in
++			elf_i386|elf32*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH32 ";;
++			*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		    esac
++		elif [ -n "$DEB_TARGET_MULTIARCH64" ]; then
++		    case $EMULATION_NAME in
++			elf*_64|elf64*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH64 ";;
++			*)
++			    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		    esac
++		else
++		    temp_dirs="${temp_dirs}${dir}/$DEB_TARGET_MULTIARCH "
++		fi
++		;;
++	    */lib32)
++	        if [ -n "$DEB_TARGET_MULTIARCH32" ]; then
++		    dir2=$(echo $dir | sed "s,32$,,")
++		    temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH32 "
++		fi
++		;;
++	    */lib64)
++	        case "${target}" in
++		    powerpc64-*-*|s390x-*-*|sparc64-*-*|x86_64-*-linux-gnu|aarch64*-linux-gnu)
++			#dir=$(echo $dir | sed "s,64$,,")
++			dir2=$(echo $dir | sed "s,64$,,")
++			temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH "
++			;;
++		    *)
++			if [ -n "$DEB_TARGET_MULTIARCH64" ]; then
++			    dir2=$(echo $dir | sed "s,64$,,")
++			    temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH64 "
++			fi
++			;;
++		esac
++	        ;;
++	    */libx32)
++		case "${target}" in
++		    x86_64-*-linux-gnux32)
++			dir2=$(echo $dir | sed "s,x32$,,")
++			temp_dirs="${temp_dirs}${dir2}/$DEB_TARGET_MULTIARCH "
++			;;
++		    *)
++			if [ -n "$DEB_TARGET_MULTIARCHX32" ]; then
++			    dir2=$(echo $dir | sed "s,x32$,,")
++			    temp_dirs="${temp_dirs}${dir2}/$DEB_HOST_MULTIARCHX32 "
++			fi
++			;;
++		esac
++		;;
++	    *)
++		;;
++	esac
++	temp_dirs="${temp_dirs}${dir} "
++    done
++    LIB_SEARCH_DIRS=
++    for dir in $temp_dirs; do
++	if echo "$LIB_SEARCH_DIRS" | fgrep -q "\"$dir\""; then
++	    continue
++	fi
++	LIB_SEARCH_DIRS="${LIB_SEARCH_DIRS}SEARCH_DIR(\"$dir\"); "
++    done
++fi
+ 
+ # We need it for testsuite.
+ set $EMULATION_LIBPATH

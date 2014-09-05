@@ -5,30 +5,40 @@
 # Copyright (C) 2014  Knut Welzel
 #
 
+build_args=()
+
 ##
-## Build sysroot
+## Build package 
 ##
-build_sysroot(){
-
-	echo "Building sysroot:" 2>&1 | tee -a $glb_build_log
+build_package(){
 	
-	# Go into download dir
-	cd $glb_download_path
+	name=$1
 
-	# install sysroot
-	echo -n "Install sysroot... " 2>&1 | tee -a $glb_build_log
-	
-	mkdir -p ${glb_prefix}/arm-linux-gnueabihf/libc >> $glb_build_log 2>&1 || exit 1
+	echo "Building ${name}:"
 
-	cp -a \
-		"${glb_source_path}/${glb_sysroot_name}/etc" \
-		"${glb_source_path}/${glb_sysroot_name}/lib" \
-		"${glb_source_path}/${glb_sysroot_name}/sbin" \
-		"${glb_source_path}/${glb_sysroot_name}/usr" \
-		"${glb_source_path}/${glb_sysroot_name}/var" \
-		"${glb_prefix}/arm-linux-gnueabihf/libc" >> $glb_build_log 2>&1 || exit 1
+	# create new build dir
+	if ! [ -d "${build_dir}" ]; then
+		mkdir -p $build_dir
+	fi
+	cd $build_dir
 	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure gmp
+	echo -n "Configure ${name}... "
+	
+	${glb_source_path}/${name}/configure ${build_args[@]} > "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	
+	echo "done"
+	
+	# build gmp
+	echo -n "Build ${name}... "
+	make >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	echo "done"
+	
+	echo -n "Install ${name}... "
+	make install >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	echo "done"
+	
+	cd $BASEPATH
 }
 
 
@@ -36,40 +46,32 @@ build_sysroot(){
 ## Build gmp
 ##
 build_gmp(){
-
-	echo "Building gmp:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_gmp_name}/build >> ${glb_log_path}/gmp.log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_gmp_name}/build
-
-	# configure gmp
-	echo -n "Configure gmp... " 2>&1 | tee -a $glb_build_log
+	name=${package_gmp[0]}
 	
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -fexceptions" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--prefix=${glb_build_path}/static \
-		--enable-fft \
-		--enable-mpbsd \
-		--enable-cxx \
-		--disable-shared \
-		--enable-static >> ${glb_log_path}/gmp.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags 
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -fexceptions"
 	
-	# build gmp
-	echo -n "Build gmp... " 2>&1 | tee -a $glb_build_log
-	make -j2  >> ${glb_log_path}/gmp.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
-
-	echo -n "Install gmp... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/gmp.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--prefix=${glb_build_path}/static
+		--enable-fft
+		--enable-mpbsd
+		--enable-cxx
+		--disable-shared
+		--enable-static
+	)
+	
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset CFLAGS
+	unset build_args
 }
 
 
@@ -77,40 +79,30 @@ build_gmp(){
 ## Build mpfr
 ##
 build_mpfr(){
-
-	echo "Building mpfr..." 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_mpfr_name}/build >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_mpfr_name}/build
-
-	# configure mpfr
-	echo -n "Configure mpfr... " 2>&1 | tee -a $glb_build_log
+	name=${package_mpfr[0]}
 	
-	CC="${glb_cc}" \
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--prefix=${glb_build_path}/static \
-		--with-gmp=${glb_build_path}/static \
-		--disable-shared \
-		--enable-static  >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags 
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 	
-	# build mpfr
-	echo -n "Build mpfr... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--prefix=${glb_build_path}/static
+		--with-gmp=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+	)
 	
-	# install mpfr
-	echo -n "Install mpfr... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/mpfr.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset CFLAGS
+	unset build_args
 }
 
 
@@ -118,40 +110,32 @@ build_mpfr(){
 ## Build isl
 ##
 build_isl(){
-
-	echo "Building isl:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_isl_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_isl_name}/build
-
-	# configure isl
-	echo -n "Configure isl... " 2>&1 | tee -a $glb_build_log
-		
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--prefix=${glb_build_path}/static \
-		--with-gmp-prefix=${glb_build_path}/static \
-		--disable-shared \
-		--enable-static >> ${glb_log_path}/isl.log 2>&1 || exit 1
+	name=${package_isl[0]}
 	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 	
-	# build isl
-	echo -n "Build isl... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/isl.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--prefix=${glb_build_path}/static
+		--with-gmp=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+	)
 	
-	# install isl
-	echo -n "Install isl... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/isl.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset CFLAGS
+	unset CXXFLAGS
+	unset build_args
 }
 
 
@@ -159,40 +143,31 @@ build_isl(){
 ## Build cloog
 ##
 build_cloog(){
-
-	echo "Building cloog:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_cloog_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_cloog_name}/build
-
-	# configure cloog
-	echo -n "Configure cloog... " 2>&1 | tee -a $glb_build_log
+	name=${package_cloog[0]}
 	
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--prefix=${glb_build_path}/static \
-		--with-gmp-prefix=${glb_build_path}/static \
-		--with-isl-prefix=${glb_build_path}/static \
-		--disable-shared \
-		--enable-static >> ${glb_log_path}/cloog.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags 
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 	
-	# build cloog
-	echo -n "Build cloog... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/cloog.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--prefix=${glb_build_path}/static
+		--with-gmp-prefix=${glb_build_path}/static
+		--with-isl-prefix=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+	)
 	
-	# install cloog
-	echo -n "Install cloog... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/cloog.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset CFLAGS
+	unset build_args
 }
 
 
@@ -200,40 +175,34 @@ build_cloog(){
 ## Build mpc
 ##
 build_mpc(){
-
-	echo "Building mpc:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_mpc_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_mpc_name}/build
-
-	# configure mpc
-	echo -n "Configure mpc... " 2>&1 | tee -a $glb_build_log
+	name=${package_mpc[0]}
 	
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--prefix=${glb_build_path}/static \
-		--with-gmp=${glb_build_path}/static \
-		--with-mpfr=${glb_build_path}/static \
-		--disable-shared \
-		--enable-static >> ${glb_log_path}/mpc.log 2>&1 || exit 1
+	# configure flags 
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 
-	echo "done" 2>&1 | tee -a $glb_build_log
 	
-	# build mpc
-	echo -n "Build mpc... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/mpc.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--prefix=${glb_build_path}/static
+		--with-gmp-prefix=${glb_build_path}/static
+		--with-mpfr-prefix=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+	)
 	
-	# install mpc
-	echo -n "Install mpc... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/mpc.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset CFLAGS
+	unset CXXFLAGS
+	unset build_args
 }
 
 
@@ -241,75 +210,34 @@ build_mpc(){
 ## Build zlib
 ##
 build_zlib(){
-
-	echo "Building zlib:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	cd ${glb_source_path}/${glb_zlib_name}
-
-	# configure zlib
-	echo -n "Configure zlib... " 2>&1 | tee -a $glb_build_log
+	name=${package_zlib[0]}
+	
+	# build in dir
+	cd "${glb_source_path}/${name}"
+	
+	
+	echo "Building ${name}:"
+	
+	# configure gmp
+	echo -n "Configure ${name}... "
 	
 	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	./configure \
 		--prefix=${glb_build_path}/static/zlib \
-		--static >> ${glb_log_path}/zlib.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+		--static >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
 	
-	# build zlib
-	echo -n "Build zlib... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/zlib.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
+	echo "done"
 	
-	# install zlib
-	echo -n "Install zlib... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/zlib.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
-}
-
-
-##
-## Build Linux Kernel Source and Headers
-##
-build_kernel(){
-
-	echo "Building Linux Kernel Headers:" 2>&1 | tee -a $glb_build_log
+	# build gmp
+	echo -n "Build ${name}... "
+	make >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	echo "done"
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# Go into kernel source directory
-	cd ${glb_kernel_source_path}/${glb_kernel_name}
-
-	# Install kernel sources
-	echo -n "Install Kernel... " 2>&1 | tee -a $glb_build_log
-		
-	make \
-		-C ${glb_kernel_source_path}/${glb_kernel_name} \
-		O=${glb_build_path}/build-kernel-headers \
-		ARCH=arm \
-		INSTALL_HDR_PATH=${glb_prefix}/arm-linux-gnueabihf/libc/usr \
-		V=1 \
-		headers_install >> ${glb_log_path}/kernel.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
-
-	# Checking kernel sources
-	echo -n "Checking Kernel headers... " 2>&1 | tee -a $glb_build_log
-	
-	make \
-		-C ${glb_kernel_source_path}/${glb_kernel_name} \
-		O=${glb_build_path}/build-kernel-headers \
-		ARCH=arm \
-		INSTALL_HDR_PATH=${glb_prefix}/arm-linux-gnueabihf/libc/usr \
-		V=1 \
-		headers_check >> ${glb_log_path}/kernel.log 2>&1 || exit 1
-	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	echo -n "Install ${name}... "
+	make install >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	echo "done"
 }
 
 
@@ -317,369 +245,174 @@ build_kernel(){
 ## Build Binutils
 ##
 build_binutils(){
-
-	echo "Building Binutils:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_binutils_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_binutils_name}/build
-
-	# configure Binutils
-	echo -n "Configure Binutils... " 2>&1 | tee -a $glb_build_log
-		
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include" \
-	CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include" \
-	LDFLAGS="-L${glb_build_path}/static/zlib/lib" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--target=$TARGET \
-		--prefix=${glb_prefix} \
-		--disable-multilib \
-		--disable-werror \
-		--enable-ld=default \
-		--enable-gold=yes \
-		--enable-threads \
-		--with-pkgversion="$BUILDVERSION" \
-		--with-bugurl="$BUGURL" \
-		--with-float=hard \
-		--with-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc >> ${glb_log_path}/binutils.log 2>&1 || exit 1
+	name=${package_binutils[0]}
 	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
+	export LDFLAGS="-L${glb_build_path}/static/zlib/lib"
 	
-	# build binutils
-	echo -n "Build Binutils... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/binutils.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--target=$TARGET
+		--prefix=${glb_prefix}
+		--disable-multilib
+		--disable-werror
+		--enable-ld=default
+		--enable-gold=yes
+		--enable-threads
+		--with-float=hard
+		--with-sysroot="${glb_sysroot_path}/libc"
+		--with-pkgversion=$BUILDVERSION
+		--with-bugurl=$BUGURL
+	)
+#		--with-pkgversion="\"${BUILDVERSION}\""
+#	)
 	
-	# install binutils
-	echo -n "Install Binutils... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/binutils.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
 	
-	# install binutils
-	echo -n "Install Binutils Documentation... " 2>&1 | tee -a $glb_build_log
+	# build package 
+	build_package $name
 	
+	cd "${glb_source_path}/${name}/build"
 	
+	echo -n "Install ${name} Documentation... "
+	make html >> "${glb_log_path}/${name}.log" 
+	make install-html-gas install-html-binutils install-html-ld install-html-gprof >> "${glb_log_path}/${name}.log" 
+	echo "done"
 	
-	if tex_loc="$(type -p tex)" || [ -z "tex_loc" ]; then	
-		
-		make -j2 pdf html >> ${glb_log_path}/binutils.log
-		make install-pdf-gas install-pdf-binutils install-pdf-ld install-pdf-gprof install-html-gas install-html-binutils install-html-ld install-html-gprof >> ${glb_log_path}/binutils.log
-		echo "done" 2>&1 | tee -a $glb_build_log
-	else
-		
-		make -j2 html >> ${glb_log_path}/binutils.log
-		make install-html-gas install-html-binutils install-html-ld install-html-gprof >> ${glb_log_path}/binutils.log
-		echo "done" 2>&1 | tee -a $glb_build_log
-		echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
-	fi
+	cd $BASEPATH
+	
+	unset CFLAGS
+	unset CXXFLAGS
+	unset LDFLAGS
+	unset build_args
 }
 
 
 ##
-## Build libiconv
+## Build Linux Kernel Source and Headers
 ##
-build_libiconv(){
-
-	echo "Building libiconv..."
+build_kernel(){
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
+	name=${package_kernel[0]}
+	
+	echo "Building Linux Kernel Headers:"
+	
+	# Go into kernel source directory
+	cd "${glb_disk_image_path}/${name}"
+	
 	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_libiconv_name}/build || exit 1
-	cd ${glb_source_path}/${glb_libiconv_name}/build
+	if ! [ -d "${glb_disk_image_path}/${name}/build" ]; then
+		mkdir -p "${glb_disk_image_path}/${name}/build"
+	fi
+	
+	# Install kernel sources
+	echo -n "Install Kernel... "
+		
+	make \
+		-C "${glb_disk_image_path}/${name}" \
+		O="${glb_disk_image_path}/${name}/build" \
+		ARCH=arm \
+		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
+		V=1 \
+		headers_install > "${glb_log_path}/${name}.log" 2>&1 || exit 1
 
-	# configure libiconv
-	echo -n "Configure libiconv... "
-	../configure \
-		--prefix=$PREFIX \
-		--disable-shared  || exit 1
-	# >/dev/null 2>&1 || exit 1
+	echo "done"
+
+	# Checking kernel sources
+	echo -n "Checking Kernel headers... "
+	
+	make \
+		-C "${glb_disk_image_path}/${name}" \
+		O="${glb_disk_image_path}/${name}/build" \
+		ARCH=arm \
+		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
+		V=1 \
+		headers_check >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	
 	echo "done"
 	
-	# build libiconv
-	echo -n "Build libiconv... "
-	make || exit 1
-	# >/dev/null 2>&1 || exit 1
-	echo "done"
-	
-	# install libiconv
-	echo -n "Install libiconv... "
-	make install || exit 1
-	# >/dev/null 2>&1 || exit 1
-	echo "done"
+	build_sysroot
 }
 
 
 ##
 ## Build gcc part 1 - static core C compiler
 ##
-build_gcc1(){
-
-	echo "Building static core C compiler:" 2>&1 | tee -a $glb_build_log
-
-	# Go into download dir
-	cd ${glb_download_path}
+build_gcc(){
 	
-	# get libc headers 
-	mkdir -p ${glb_build_path}/gcc-core-static/arm-linux-gnueabihf/include >> $glb_build_log 2>&1 || exit 1
-	cp -a \
-		${glb_prefix}/arm-linux-gnueabihf/libc/usr/include \
-		${glb_build_path}/gcc-core-static/arm-linux-gnueabihf >> $glb_build_log 2>&1 || exit 1
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_gcc_name}/build1
-	cd ${glb_source_path}/${glb_gcc_name}/build1
+	name=${package_gcc[0]}
 	
-	# Configure gcc part 1
-	echo -n "Configure static core C... " 2>&1 | tee -a $glb_build_log
-
-	CC_FOR_BUILD="${glb_cc}" \
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-	LDFLAGS="-lstdc++ -lm" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--target=$TARGET \
-		--prefix=${glb_build_path}/gcc-core-static \
-		--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc \
-		--disable-libmudflap \
-		--with-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc \
-		--with-newlib \
-		--enable-threads=no \
-		--disable-shared \
-		--with-pkgversion="$BUILDVERSION" \
-		--with-bugurl="$BUGURL" \
-		--with-arch=armv7-a \
-		--with-tune=cortex-a9 \
-		--with-fpu=vfpv3-d16 \
-		--with-float=hard \
-		--enable-__cxa_atexit \
-		--with-gmp=${glb_build_path}/static \
-		--with-mpfr=${glb_build_path}/static \
-		--with-mpc=${glb_build_path}/static \
-		--with-isl=${glb_build_path}/static \
-		--with-cloog=${glb_build_path}/static \
-		--with-libelf=${glb_build_path}/static \
-		--enable-lto \
-		--enable-linker-build-id \
-		--disable-libgomp \
-		--disable-libmudflap \
-		--disable-libstdcxx-pch \
-		--enable-multilib \
-		--enable-languages=c \
-		--with-mode=thumb >> ${glb_log_path}/gcc1.log 2>&1 || exit 1
+	# configure flags
+	export CC_FOR_BUILD=$glb_cc
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
+	export LDFLAGS="-lstdc++ -lm"
+	export CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv7-a   -mtune=cortex-a9 -mfpu=vfpv3-d16 -mhard-float -g -O2"
+	export LDFLAGS_FOR_TARGET="-Wl,-EL"
 	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--target=$TARGET
+		--prefix=${glb_prefix}
+		--with-sysroot="${glb_sysroot_path}/libc"
+		--enable-multilib
+		--with-arch=armv7-a
+		--with-tune=cortex-a9
+		--with-fpu=vfpv3-d16
+		--with-float=hard
+		--enable-__cxa_atexit
+		--enable-libmudflap
+		--enable-libgomp
+		--enable-libssp
+		--with-gmp=${glb_build_path}/static
+		--with-mpfr=${glb_build_path}/static
+		--with-mpc=${glb_build_path}/static
+		--with-isl=${glb_build_path}/static
+		--with-cloog=${glb_build_path}/static
+		--with-libelf=${glb_build_path}/static
+		--enable-threads=posix
+		--disable-libstdcxx-pch
+		--enable-linker-build-id
+		--enable-gold
+		--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc
+		--enable-c99
+		--enable-long-long
+		--with-mode=thumb
+		--with-float=hard
+		--with-pkgversion=$BUILDVERSION
+		--with-bugurl=$BUGURL
+	)
 	
-	# Build static gcc 
-	echo -n "Build static GCC... " 2>&1 | tee -a $glb_build_log
-	#make all-gcc all-target-libgcc >> ${glb_log_path}/gcc1.log 2>&1 || exit 1
-	make all-gcc >> ${glb_log_path}/gcc1.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
 	
-	# Install static gcc
-	echo -n "Install static GCC... " 2>&1 | tee -a $glb_build_log
-	make install-gcc >> ${glb_log_path}/gcc1.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build package 
+	build_package $name
 	
-	cd ${glb_build_path}/gcc-core-static/bin
-	ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 
-}
-
-
-##
-## Build gcc part 2 - shared core C compiler
-##
-build_gcc2(){
+	cd "${glb_source_path}/${name}/build"
 	
-	echo "Building shared core C compiler:" 2>&1 | tee -a $glb_build_log
+	echo -n "Install ${name} Documentation... "
+	make html >> "${glb_log_path}/${name}.log" 
+	make install-html-gcc >> "${glb_log_path}/${name}.log" 
+	echo "done"
 	
-	# Check if gcc part 1 has extracted gcc archive
-	if [ -d "${glb_source_path}/${glb_gcc_name}" ]; then
-		
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_gcc_name}/build2" ]; then
-			rm -rf ${glb_source_path}/${glb_gcc_name}/build2
-		fi
-		
-		# create new build dir
-		mkdir -p ${glb_source_path}/${glb_gcc_name}/build2
-		cd ${glb_source_path}/${glb_gcc_name}/build2
-		
-		# configure gcc part 2
-		echo -n "Configure shared core C compiler... " 2>&1 | tee -a $glb_build_log
-		
-		# get libc 
-		mkdir -p ${glb_build_path}/gcc-core-shared/arm-linux-gnueabihf/include >> $glb_build_log 2>&1 || exit 1
-		cp -a \
-			${glb_prefix}/arm-linux-gnueabihf/libc/usr/include \
-			${glb_build_path}/gcc-core-shared/arm-linux-gnueabihf >> $glb_build_log 2>&1 || exit 1
-
-		CC_FOR_BUILD="${glb_cc}" \
-		CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-		LDFLAGS="-lstdc++ -lm" \
-		../configure \
-			--build=$BUILD \
-			--host=$BUILD \
-			--target=$TARGET \
-			--prefix=${glb_build_path}/gcc-core-shared \
-			--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc \
-			--disable-libmudflap \
-			--with-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc \
-			--enable-shared \
-			--with-pkgversion="$BUILDVERSION" \
-			--with-bugurl="$BUGURL" \
-			--with-arch=armv7-a \
-			--with-tune=cortex-a9 \
-			--with-fpu=vfpv3-d16 \
-			--with-float=hard \
-			--enable-__cxa_atexit \
-			--with-gmp=${glb_build_path}/static \
-			--with-mpfr=${glb_build_path}/static \
-			--with-mpc=${glb_build_path}/static \
-			--with-isl=${glb_build_path}/static \
-			--with-cloog=${glb_build_path}/static \
-			--with-libelf=${glb_build_path}/static \
-			--enable-lto \
-			--enable-linker-build-id \
-			--disable-libgomp \
-			--disable-libmudflap \
-			--disable-libstdcxx-pch \
-			--enable-multilib \
-			--enable-languages=c \
-			--with-mode=thumb >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# build gcc part 2
-		echo -n "Build shared core C compiler... " 2>&1 | tee -a $glb_build_log
-		
-		make configure-gcc configure-libcpp configure-build-libiberty >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make all-libcpp all-build-libiberty >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make configure-libbacktrace >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make -C libbacktrace all >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make configure-libdecnumber >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make -C libdecnumber libdecnumber.a >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make -C gcc libgcc.mvars >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make all-gcc all-target-libgcc >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# install gcc part 2
-		echo -n "Install shared core C compiler... " 2>&1 | tee -a $glb_build_log
-		make install-gcc install-target-libgcc >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		make all >> ${glb_log_path}/gcc2.log 2>&1 || exit 1
-		echo "done"  2>&1 | tee -a $glb_build_log
-		
-		
-		cd ${glb_build_path}/gcc-core-shared/bin
-		ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
-				
-	else
-		echo "Error: ${glb_download_path}/${glb_gcc_arch} not found" 2>&1 | tee -a $glb_build_log
-	fi
-}
-
-
-##
-## Build gcc part 3
-##
-build_gcc3(){
+	cd $BASEPATH
 	
-	echo "Building final compiler:" 2>&1 | tee -a $glb_build_log
+	ln -sf "${glb_prefix}/bin/arm-linux-gnueabihf-gcc" "${glb_prefix}/bin/arm-linux-gnueabihf-cc"
 	
-	# Check if gcc part 1 has extracted gcc archive
-	if [ -d "${glb_source_path}/${glb_gcc_name}" ]; then
-		
-		# remove old build
-		if [ -d "${glb_source_path}/${glb_gcc_name}/build3" ]; then
-			rm -rf ${glb_source_path}/${glb_gcc_name}/build3
-		fi
-		
-		# create new build dir
-		mkdir -p ${glb_source_path}/${glb_gcc_name}/build3
-		cd ${glb_source_path}/${glb_gcc_name}/build3
-		
-		# configure gcc part 3
-		echo -n "Configure final compiler... " 2>&1 | tee -a $glb_build_log
-		
-		CC_FOR_BUILD=${glb_cc} \
-		CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
-		LDFLAGS="-lstdc++ -lm" \
-		CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv7-a   -mtune=cortex-a9 -mfpu=vfpv3-d16 -mhard-float -g -O2" \
-		LDFLAGS_FOR_TARGET="-Wl,-EL" \
-		../configure \
-			--build=$BUILD \
-			--host=$BUILD \
-			--target=$TARGET \
-			--prefix=${glb_prefix} \
-			--with-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc \
-			--enable-languages=c,c++,fortran \
-			--enable-multilib \
-			--with-arch=armv7-a \
-			--with-tune=cortex-a9 \
-			--with-fpu=vfpv3-d16 \
-			--with-float=hard \
-			--with-pkgversion="$BUILDVERSION" \
-			--with-bugurl="$BUGURL" \
-			--enable-__cxa_atexit \
-			--enable-libmudflap \
-			--enable-libgomp \
-			--enable-libssp \
-			--with-gmp=${glb_build_path}/static \
-			--with-mpfr=${glb_build_path}/static \
-			--with-mpc=${glb_build_path}/static \
-			--with-isl=${glb_build_path}/static \
-			--with-cloog=${glb_build_path}/static \
-			--with-libelf=${glb_build_path}/static \
-			--enable-threads=posix \
-			--disable-libstdcxx-pch \
-			--enable-linker-build-id \
-			--enable-gold \
-			--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc \
-			--enable-c99 \
-			--enable-long-long \
-			--with-mode=thumb >> ${glb_log_path}/gcc3.log 2>&1 || exit 1
-		
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# build gcc part 3
-		echo -n "Build final compiler... " 2>&1 | tee -a $glb_build_log
-		make all >> ${glb_log_path}/gcc3.log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# install gcc part 3
-		echo -n "Install final compiler... " 2>&1 | tee -a $glb_build_log
-		make install >> ${glb_log_path}/gcc3.log 2>&1 || exit 1
-		echo "done" 2>&1 | tee -a $glb_build_log
-		
-		# install gcc part 3 docu 
-		echo -n "Install compiler documentation... " 2>&1 | tee -a $glb_build_log
-	
-		if tex_loc="$(type -p tex)" || [ -z "tex_loc" ]; then	
-		
-			make pdf html >> ${glb_log_path}/gcc3.log
-			make install-pdf-gcc install-html-gcc >> ${glb_log_path}/gcc3.log
-			echo "done" 2>&1 | tee -a $glb_build_log
-		else
-		
-			make html >> ${glb_log_path}/gcc3.log
-			make install-html-gcc >> ${glb_log_path}/gcc3.log
-			echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
-		fi
-		
-		cd ${glb_prefix}/bin
-		ln -sf arm-linux-gnueabihf-gcc arm-linux-gnueabihf-cc 2>&1 | tee -a $glb_build_log
-				
-	else
-		echo "Error: ${glb_download_path}/${glb_gcc_arch} not found" 2>&1 | tee -a $glb_build_log
-	fi
+	unset CC_FOR_BUILD
+	unset CFLAGS
+	unset LDFLAGS
+	unset CXXFLAGS_FOR_TARGET
+	unset LDFLAGS_FOR_TARGET
+	unset build_args
 }
 
 
@@ -687,39 +420,28 @@ build_gcc3(){
 ## Build eXpat
 ##
 build_expat(){
-
-	echo "Building eXpat..." 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
+	name=${package_expat[0]}
 	
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_expat_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_expat_name}/build
-
-	# configure eXpat
-	echo -n "Configure eXpat... " 2>&1 | tee -a $glb_build_log
-
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--target=$TARGET \
-		--prefix=${glb_build_path}/static \
-		--enable-static \
-		--disable-shared >> ${glb_log_path}/expat.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags
 	
-	# build expat
-	echo -n "Build eXpat... " 2>&1 | tee -a $glb_build_log
-	make >> ${glb_log_path}/expat.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--target=$TARGET
+		--prefix=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+	)
 	
-	# install expat
-	echo -n "Install eXpat... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/expat.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset build_args
 }
 
 
@@ -727,40 +449,29 @@ build_expat(){
 ## Build ncurses
 ##
 build_ncurses(){
-
-	echo "Building ncurses:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_ncurses_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_ncurses_name}/build
-
-	# configure ncurses
-	echo -n "Configure ncurses... " >> $glb_build_log 2>&1 || exit 1
-
-	CC="${glb_cc}" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--target=$TARGET \
-		--prefix=${glb_build_path}/static \
-		--disable-shared \
-		--enable-static \
-		--without-ada >> ${glb_log_path}/ncurses.log 2>&1 || exit 1
-
-	echo "done" >> $glb_build_log 2>&1 || exit 1
+	name=${package_ncurses[0]}
 	
-	# build ncurses
-	echo -n "Build ncurses... " >> $glb_build_log 2>&1 || exit 1
-	make >> ${glb_log_path}/ncurses.log 2>&1 || exit 1
-	echo "done" 
+	# configure flags
 	
-	# install ncurses
-	echo -n "Install ncurses... " >> $glb_build_log 2>&1 || exit 1
-	make install >> ${glb_log_path}/ncurses.log 2>&1 || exit 1
-	echo "done" >> $glb_build_log 2>&1 || exit 1
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--target=$TARGET
+		--prefix=${glb_build_path}/static
+		--disable-shared
+		--enable-static
+		--without-ada
+	)
+	
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+	unset build_args
 }
 
 
@@ -768,64 +479,47 @@ build_ncurses(){
 ## Build gdb
 ##
 build_gdb(){
-
-	echo "Building gdb:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_gdb_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_gdb_name}/build
-
-	# configure gdb
-	echo -n "Configure gdb... " 2>&1 | tee -a $glb_build_log
+	name=${package_gdb[0]}
 	
-	CC="" \
-	LD="" \
-	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include" \
-	LDFLAGS="-L${glb_build_path}/static/lib -L${glb_build_path}/static/zlib/lib" \
-	../configure \
-		--build=$BUILD \
-		--host=$BUILD \
-		--target=$TARGET \
-		--prefix=${glb_prefix} \
-		--with-build-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc \
-		--with-sysroot=${glb_prefix}/arm-linux-gnueabihf/libc \
-		--with-expat=yes \
-		--disable-werror \
-		--with-pkgversion="$BUILDVERSION" \
-		--with-bugurl="$BUGURL" \
-		--enable-threads \
-		--with-python=no \
-		--with-libexpat-prefix=${glb_build_path}/static \
-		--disable-sim >> ${glb_log_path}/gdb.log 2>&1 || exit 1
+	# configure flags
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
+	export LDFLAGS="-L${glb_build_path}/static/lib -L${glb_build_path}/static/zlib/lib"
 	
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--build=$BUILD
+		--host=$BUILD
+		--target=$TARGET
+		--prefix=${glb_prefix}
+		--with-build-sysroot="${glb_sysroot_path}/libc"
+		--with-sysroot="${glb_sysroot_path}/libc"
+		--with-expat=yes
+		--disable-werror
+		--enable-threads
+		--with-python=no
+		--with-libexpat-prefix="${glb_build_path}/static"
+		--disable-sim
+		--with-pkgversion=$BUILDVERSION
+		--with-bugurl=$BUGURL
+	)
 	
-	# build gdb
-	echo -n "Build gdb... " 2>&1 | tee -a $glb_build_log
-	make -j2 >> ${glb_log_path}/gdb.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
-
-	echo -n "Install gdb... " 2>&1 | tee -a $glb_build_log
-	make install >> ${glb_log_path}/gdb.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
 	
-	# install gdb docu 
-	echo -n "Install gdb documentation... " 2>&1 | tee -a $glb_build_log
-
-	if tex_loc="$(type -p tex)" || [ -z "tex_loc" ]; then	
-		
-		make -j2 pdf html  >> ${glb_log_path}/gdb.log
-		make install-pdf-gdb install-html-gdb >> ${glb_log_path}/gdb.log
-		echo "done" 2>&1 | tee -a $glb_build_log
-	else
-		
-		make -j2 html  >> ${glb_log_path}/gdb.log
-		make install-html-gdb >> ${glb_log_path}/gdb.log
-		echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
-	fi
+	# build package 
+	build_package $name
+	
+	cd "${glb_source_path}/${name}/build"
+	
+	echo -n "Install ${name} Documentation... "
+	make -j2 html  >> ${glb_log_path}/gdb.log
+	make install-html-gdb >> ${glb_log_path}/gdb.log
+	echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+	
+	unset CFLAGS
+	unset LDFLAGS
+	unset build_args
 }
 
 
@@ -833,35 +527,58 @@ build_gdb(){
 ## Build pkgconf
 ##
 build_pkgconf(){
-
-	echo "Building pkgconf:" 2>&1 | tee -a $glb_build_log
 	
-	# Go into download dir
-	cd ${glb_download_path}
-
-	# create new build dir
-	mkdir -p ${glb_source_path}/${glb_pkgconf_name}/build >> $glb_build_log 2>&1 || exit 1
-	cd ${glb_source_path}/${glb_pkgconf_name}/build
-
-	# configure pkgconf
-	echo -n "Configure pkg-config... " 2>&1 | tee -a $glb_build_log
+	name=${package_pkgconf[0]}
 	
-	../configure \
-		--prefix=${glb_prefix} \
-		--build=$BUILD \
-		--host=$BUILD \
-		--program-prefix=$TARGET- \
-		--program-suffix=-real \
-		--with-pc-path="${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" >> ${glb_log_path}/pkgconf.log 2>&1 || exit 1
-
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure flags
 	
-	# build pkg-config
-	echo -n "Build pkg-config... " 2>&1 | tee -a $glb_build_log
-	make >> ${glb_log_path}/pkgconf.log 2>&1 || exit 1
-	echo "done"  2>&1 | tee -a $glb_build_log
-
-	echo -n "Install pkg-config... "
-	make install >> ${glb_log_path}/pkgconf.log 2>&1 || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
+	# configure args
+	build_args=(
+		--prefix=${glb_prefix}
+		--build=$BUILD
+		--host=$BUILD
+		--program-prefix="$TARGET-"
+		--program-suffix="-real"
+		--with-pc-path="${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 
+	)
+	
+	# build in dir
+	build_dir=${glb_source_path}/${name}/build
+	
+	# build package 
+	build_package $name
+	
+#	cp -a \
+#		/home/knut/Develop/crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/scripts/build/cross_extras/pkg-config-wrapper
+#		/home/knut/Develop//crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/install/bin/arm-linux-gnueabihf-pkg-config
+	
+	unset build_args
 }
+
+
+##
+## Build sysroot
+##
+build_sysroot(){
+	
+	name=${package_sysroot[0]}
+	
+	# install sysroot
+	echo -n "Install sysroot... "
+	
+	# create new build dir
+	if ! [ -d "${glb_prefix}/arm-linux-gnueabihf/libc" ]; then
+		mkdir -p "${glb_prefix}/arm-linux-gnueabihf/libc"
+	fi
+
+	cp -a \
+		"${glb_source_path}/${name}/etc" \
+		"${glb_source_path}/${name}/lib" \
+		"${glb_source_path}/${name}/sbin" \
+		"${glb_source_path}/${name}/usr" \
+		"${glb_source_path}/${name}/var" \
+		"${glb_sysroot_path}/libc" || exit 1
+	
+	echo "done"
+}
+

@@ -1,0 +1,20 @@
+Only insert the sysroot if ${prefix} starts with /usr.  This stops
+pkg-config from inserting the sysroot on local, non-sysroot .pc
+files.
+
+diff -ur orig/pkg.c pkg-config-0.25/pkg.c
+--- orig/pkg.c	2010-05-09 08:14:17.000000000 +1200
++++ pkg-config-0.25/pkg.c	2012-01-04 11:13:57.105031679 +1300
+@@ -482,9 +482,9 @@
+   while (tmp != NULL) {
+     char *tmpstr = (char*) tmp->data;
+     if (pcsysrootdir != NULL &&
+-	tmpstr[0] == '-' &&
+-	(tmpstr[1] == 'I' ||
+-	 tmpstr[1] == 'L')) {
++        (strncmp(tmpstr, "-I", 2) == 0 ||
++         strncmp(tmpstr, "-L", 2) == 0)
++        && strncmp(tmpstr+2, "/usr", 4) == 0) {
+       g_string_append_c (str, '-');
+       g_string_append_c (str, tmpstr[1]);
+       g_string_append (str, pcsysrootdir);

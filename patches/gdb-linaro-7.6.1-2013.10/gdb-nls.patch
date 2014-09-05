@@ -1,0 +1,45 @@
+diff -aru original/gdb/main.c modified/gdb/main.c
+--- original/gdb/main.c	2012-09-15 22:12:07.564418868 -0700
++++ modified/gdb/main.c	2012-09-15 22:13:58.652173554 -0700
+@@ -265,6 +265,8 @@
+ /* Define type VEC (cmdarg_s).  */
+ DEF_VEC_O (cmdarg_s);
+ 
++#define LIBINTL_RELATIVE_DIR "../share/locale"
++
+ static int
+ captured_main (void *data)
+ {
+@@ -323,7 +325,31 @@
+ #if defined (HAVE_SETLOCALE)
+   setlocale (LC_CTYPE, "");
+ #endif
+-  bindtextdomain (PACKAGE, LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      bindtextdomain(PACKAGE, LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(argv[0],".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++        {
++          strcpy (locale_dir, prefix_dir);
++          strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++          bindtextdomain (PACKAGE, locale_dir);
++        }
++      else
++        bindtextdomain (PACKAGE, LOCALEDIR);
++
++      free (prefix_dir);
++    }
+   textdomain (PACKAGE);
+ 
+   make_cleanup (VEC_cleanup (cmdarg_s), &cmdarg_vec);

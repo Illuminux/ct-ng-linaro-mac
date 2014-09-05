@@ -11,33 +11,29 @@
 create_image(){
 	
 	# Create image if not exists 
-	echo "Create Case-Sensitive Disk Image" 2>&1 | tee -a $glb_build_log 
+	echo "Create Case-Sensitive Disk Image"
 	if [ ! -f "${glb_disk_image_name}.sparseimage" ]; then
+		
 		hdiutil create "${glb_disk_image_name}.sparseimage" \
 			-type SPARSE \
 			-fs JHFS+X \
 			-size ${glb_disk_image_size} \
 			-volname ${glb_disk_image_name} || exit 1
+		
 	else
-		echo "already exists" 2>&1 | tee -a $glb_build_log
+		echo "already exists"
 	fi
 	
 	# Mount image
 	echo -n "Mounting image... " 2>&1 | tee -a $glb_build_log
 	if [ ! -d "${glb_disk_image_path}" ]; then 
+		
 		hdiutil attach ${glb_disk_image_name}.sparseimage -mountroot $BASEPATH >/dev/null 2>&1 || exit 1
-		echo "mounted to ${glb_disk_image_path}" 2>&1 | tee -a $glb_build_log
+		echo "mounted to ${glb_disk_image_path}"
+		
 	else
-		echo "already mounted to ${glb_disk_image_path}" 2>&1 | tee -a $glb_build_log
+		echo "already mounted to ${glb_disk_image_path}"
 	fi
-	
-	# Create "kernel-build" directory if not exist
-	echo -n "Create kernel build directory... " 2>&1 | tee -a $glb_build_log 
-	if [ -d "${glb_disk_image_path}/build" ]; then
-		rm -rf ${glb_disk_image_path}/build
-	fi
-	mkdir ${glb_disk_image_path}/build || exit 1
-	echo "done" 2>&1 | tee -a $glb_build_log
 }
 
 
@@ -69,11 +65,7 @@ create_dir_structure(){
 	if [ -d "${glb_build_path}" ]; then
 		rm -rf ${glb_build_path}
 	fi
-	mkdir -p ${glb_build_path} || exit 1
-	mkdir -p ${glb_build_path}/static || exit 1
-	mkdir -p ${glb_build_path}/gcc-core-static || exit 1
-	mkdir -p ${glb_build_path}/gcc-core-shared || exit 1
-	mkdir -p ${glb_build_path}/build-kernel-headers || exit 1
+	mkdir -p ${glb_build_path}/{static,build-kernel-headers} || exit 1
 	echo "done" 
 
 
@@ -82,7 +74,6 @@ create_dir_structure(){
 	if [ -d "${glb_prefix}" ]; then
 		rm -rf ${glb_prefix}
 	fi
-	mkdir -p ${glb_prefix} || exit 1
 	mkdir -p ${glb_prefix}/arm-linux-gnueabihf || exit 1
 	echo "done" 
 	
@@ -279,73 +270,4 @@ finish_build(){
 
 
 
-#
-# check md5 sum of an package archive
-#
-md5_test(){
-	
-	archive=$1
-	m5dsum=$2
-	
-	# Test if archive is corrupted
-	echo -n "md5 check of $1... "
-	if [ $(md5 -q "${glb_download_path}/${archive}") != "$m5dsum" ]; then
-		echo "faild"
-		echo "*** error md5 test of ${archive} faild ***"
-		exit 1
-	else
-		echo "passed"
-	fi
-}
 
-
-#
-# extract an package archive
-#
-extract_archive(){
-	
-	kind=$1
-	name=$2
-	archive="${name}${kind}"
-	
-	
-	# remove existing directory
-	if [ -d "${glb_source_path}/${name}" ]; then
-		
-		if [ -d "${glb_source_path}/${name}/.build" ]; then
-			echo -n "Remove existing build directory... "
-			rm -rf "${glb_source_path}/${name}/.build"
-		else
-			echo -n "Remove existing directory... "
-			rm -rf "${glb_source_path}/${name}"
-		fi
-			
-		echo "done"
-		
-	fi
-		
-	echo -n "Extracting ${archive}... "
-	tar \
-		xf "${glb_download_path}/${archive}" \
-		-C "${glb_source_path}" \
-		>/dev/null 2>&1 || (echo "faild"; exit 1)
-	echo "done"
-}
-
-
-#
-# patching extract package
-#
-patch_package(){
-
-	name=$1
-	
-	if [ -f "${glb_patch_path}/${name}.patch" ]; then
-
-		echo -n "Patch ${name}... "
-		cd "${glb_source_path}/${name}"
-		patch --no-backup-if-mismatch -g0 -F1 -p1 -f < ${glb_patch_path}/${name}.patch >/dev/null 2>&1
-		echo "done"
-		
-	fi
-}

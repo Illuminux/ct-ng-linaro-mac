@@ -1,0 +1,16 @@
+diff -aru original/gold/Makefile.in modified/gold/Makefile.in
+--- original/gold/Makefile.in	2013-12-21 07:57:58.000000000 +0800
++++ modified/gold/Makefile.in	2013-12-26 17:10:28.035052342 +0800
+@@ -533,10 +533,10 @@
+ DEFFILES = arm-reloc.def
+ EXTRA_DIST = yyscript.c yyscript.h
+ TARGETSOURCES = \
+-	i386.cc x86_64.cc sparc.cc powerpc.cc arm.cc arm-reloc-property.cc tilegx.cc
++	i386.cc x86_64.cc sparc.cc arm.cc arm-reloc-property.cc tilegx.cc
+ 
+ ALL_TARGETOBJS = \
+-	i386.$(OBJEXT) x86_64.$(OBJEXT) sparc.$(OBJEXT) powerpc.$(OBJEXT) \
++	i386.$(OBJEXT) x86_64.$(OBJEXT) sparc.$(OBJEXT) \
+ 	arm.$(OBJEXT) arm-reloc-property.$(OBJEXT) tilegx.$(OBJEXT)
+ 
+ libgold_a_SOURCES = $(CCFILES) $(HFILES) $(YFILES) $(DEFFILES)

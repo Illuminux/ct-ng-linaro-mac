@@ -1,0 +1,12 @@
+diff -Naru original/gdb/gnulib/import/Makefile.in modified/gdb/gnulib/import/Makefile.in
+--- original/gdb/gnulib/import/Makefile.in	2012-09-13 07:01:23.000000000 -0700
++++ modified/gdb/gnulib/import/Makefile.in	2012-09-17 20:22:53.506483745 -0700
+@@ -550,7 +550,7 @@
+ # 'all' defined above.
+ BUILT_SOURCES = $(ALLOCA_H) configmake.h $(FNMATCH_H) inttypes.h \
+ 	arg-nonnull.h c++defs.h warn-on-use.h $(STDBOOL_H) $(STDDEF_H) \
+-	$(STDINT_H) string.h wchar.h wctype.h
++	$(STDINT_H) string.h
+ SUFFIXES = .sed .sin
+ MOSTLYCLEANFILES = core *.stackdump alloca.h alloca.h-t fnmatch.h \
+ 	fnmatch.h-t inttypes.h inttypes.h-t arg-nonnull.h \

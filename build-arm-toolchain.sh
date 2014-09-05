@@ -53,7 +53,7 @@ export PREFIX=${glb_prefix}
 export PATH=/usr/local/bin:$PREFIX/bin:$PATH
 
 BUILD=`gcc -v 2>&1 | grep "Target" | sed 's/Target:[ /t]*//'`
-BUILDVERSION="Illuminux Mac OSX Intelx86 based on Linaro ${glb_linaro_version}"
+BUILDVERSION="Illuminux-Mac_OS_X_Intelx86_based_on_Linaro_${glb_linaro_version}"
 BUGURL="https://github.com/Illuminux/arm-cross-toolchain-Mac_OS_X/issues"
 JOBS="-j`sysctl hw.ncpu | awk '{print $2}'`"
 
@@ -94,21 +94,18 @@ echo
 create_dir_structure
 
 # Check if command line tools are installed. If not, installe them.
-#check_for_Command_Line_Tools
+check_for_Command_Line_Tools
 
 # serach for installed packagmanager
 # - abort on fink/port
 # - install brew if not found
-#package_manager
+package_manager
 
 # create a case sensitiv disk image 
-#create_image
+create_image
 
 # get Linaro crosscompiler sources 
 download_sources
-exit
-# Build sysroot
-build_sysroot
 
 # Build Binutils
 build_gmp
@@ -131,23 +128,11 @@ build_zlib
 # Build Binutils
 build_binutils
 
-# Build GCC Part 1 static core C compiler
-build_gcc1
-
 # Build Linux Kernel Source and Headers
 build_kernel
 
-# Rebuild sysroot
-build_sysroot
-
-# Build gcc part 2 shared core C compiler
-build_gcc2
-
-# Build Embedded GLIBC
-build_eglibc
-
-# Build gcc part 3
-build_gcc3
+# Build gcc 
+build_gcc
 
 # Build ncurses
 build_ncurses
@@ -165,10 +150,10 @@ build_pkgconf
 package_manager_dellinks
 
 # Stripping all toolchain executables
-strip_bin
+#strip_bin
 
 # Cleanup build directory and install tool-chains
-finish_build
+#finish_build
 
 echo ""
 echo "ARM Linux Cross-Toolchain for Mac OS X was build successfully."

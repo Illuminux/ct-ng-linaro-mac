@@ -1,0 +1,11 @@
+--- binutils-2.23.2/gas/config/tc-arm.c.omv~	2013-07-21 19:32:51.820686822 +0200
++++ binutils-2.23.2/gas/config/tc-arm.c	2013-07-21 19:34:34.910398023 +0200
+@@ -5168,6 +5170,8 @@ parse_address_main (char **str, int i, i
+       return PARSE_OPERAND_SUCCESS;
+     }
+ 
++  skip_whitespace (p);
++
+   if ((reg = arm_reg_parse (&p, REG_TYPE_RN)) == FAIL)
+     {
+       inst.error = _(reg_expected_msgs[REG_TYPE_RN]);

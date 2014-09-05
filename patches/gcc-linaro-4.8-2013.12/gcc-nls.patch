@@ -1,0 +1,72 @@
+--- gcc-linaro-4.8-2013.04/gcc/gcc.c.nls~	2013-04-08 21:06:00.000000000 +0200
++++ gcc-linaro-4.8-2013.04/gcc/gcc.c	2013-04-17 22:36:02.854886030 +0200
+@@ -6292,7 +6292,7 @@ main (int argc, char **argv)
+   /* Unlock the stdio streams.  */
+   unlock_std_streams ();
+ 
+-  gcc_init_libintl ();
++  gcc_init_libintl_program (argv[0]);
+ 
+   diagnostic_initialize (global_dc, 0);
+ 
+--- gcc-linaro-4.8-2013.04/gcc/intl.c.nls~	2013-01-10 21:38:27.000000000 +0100
++++ gcc-linaro-4.8-2013.04/gcc/intl.c	2013-04-17 22:36:02.854886030 +0200
+@@ -48,6 +48,14 @@ bool locale_utf8 = false;
+ void
+ gcc_init_libintl (void)
+ {
++  gcc_init_libintl_program("gcc");
++}
++
++#define LIBINTL_RELATIVE_DIR "../share/locale"
++
++void
++gcc_init_libintl_program (const char * program_name)
++{
+ #ifdef HAVE_LC_MESSAGES
+   setlocale (LC_CTYPE, "");
+   setlocale (LC_MESSAGES, "");
+@@ -55,7 +63,32 @@ gcc_init_libintl (void)
+   setlocale (LC_ALL, "");
+ #endif
+ 
+-  (void) bindtextdomain ("gcc", LOCALEDIR);
++  if (!access (LOCALEDIR, X_OK))
++    {
++      /* If LOCALEDIR exists, use LOCALEDIR. */
++      (void) bindtextdomain ("gcc", LOCALEDIR);
++    }
++  else
++    {
++      /* Try relative dir, i.e.  .../bin/../share/locale. */
++      int len1, len2;
++      char *prefix_dir, *locale_dir;
++      prefix_dir = make_relative_prefix(program_name,".",".");
++      len1 = strlen (prefix_dir);
++      len2 = strlen (LIBINTL_RELATIVE_DIR);
++      locale_dir = (char*)xmalloc (len1 + len2 + 1);
++      if (locale_dir != NULL)
++	{
++	  strcpy (locale_dir, prefix_dir);
++	  strcpy (locale_dir + len1, LIBINTL_RELATIVE_DIR);
++	  (void) bindtextdomain ("gcc", locale_dir);
++	}
++      else
++	(void) bindtextdomain ("gcc", LOCALEDIR);
++
++      free (prefix_dir);
++    }
++
+   (void) textdomain ("gcc");
+ 
+   /* Opening quotation mark.  */
+--- gcc-linaro-4.8-2013.04/gcc/intl.h.nls~	2013-01-10 21:38:27.000000000 +0100
++++ gcc-linaro-4.8-2013.04/gcc/intl.h	2013-04-17 22:36:02.854886030 +0200
+@@ -30,6 +30,7 @@
+ #include <libintl.h>
+ extern void gcc_init_libintl (void);
+ extern size_t gcc_gettext_width (const char *);
++extern void gcc_init_libintl_program (const char *);
+ #else
+ /* Stubs.  */
+ # undef textdomain

@@ -1,0 +1,18 @@
+--- gdb-linaro-7.6-2013.05/gdb/configure.omv~	2013-05-23 14:19:38.064136900 +0200
++++ gdb-linaro-7.6-2013.05/gdb/configure	2013-05-23 14:22:13.502193657 +0200
+@@ -12569,13 +12569,13 @@ esac
+   # points somewhere with bfd, with -I/foo/lib and -L/foo/lib.  We
+   # always want our bfd.
+   CFLAGS="-I${srcdir}/../include -I../bfd -I${srcdir}/../bfd $CFLAGS"
+-  LDFLAGS="-L../bfd -L../libiberty $LDFLAGS"
++  LDFLAGS="-L../bfd -L../libiberty -L../intl $LDFLAGS"
+   intl=`echo $LIBINTL | sed 's,${top_builddir}/,,g'`
+   # -ldl is provided by bfd/Makfile.am (LIBDL) <PLUGINS>.
+   if test "$plugins" = "yes"; then
+     LIBS="-ldl $LIBS"
+   fi
+-  LIBS="-lbfd -liberty $intl $LIBS"
++  LIBS="-lbfd -liberty -lintl $intl $LIBS"
+   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ELF support in BFD" >&5
+ $as_echo_n "checking for ELF support in BFD... " >&6; }
+ if test "${gdb_cv_var_elf+set}" = set; then :
