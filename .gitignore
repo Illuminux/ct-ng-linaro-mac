@@ -10,6 +10,7 @@
 *.dmg
 *.sparseimage
 
+gcc-arm-linux-gnueabihf/
 gcc-arm-linux-gnueabihf-*/
 
 linux-kernel-sources/

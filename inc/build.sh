@@ -368,6 +368,7 @@ build_gcc(){
 		"--target=${glb_target}"
 		"--prefix=${glb_prefix}"
 		"--with-sysroot=${glb_sysroot_path}/libc"
+		"--enable-languages=c,c++,fortran"
 		"--enable-multilib"
 		"--with-arch=armv7-a"
 		"--with-tune=cortex-a9"
@@ -520,7 +521,7 @@ build_gdb(){
 	print_log -n "Install ${name} manuals... "
 	make >/dev/null 2>&1 || error_make
 	make install-html-gdb >/dev/null 2>&1 || error_install
-	print_log "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+	print_log "done"
 	
 	unset CFLAGS
 	unset LDFLAGS
@@ -555,7 +556,7 @@ build_pkgconf(){
 	build_package $name
 	
 	cp -a \
-		"${BASEPATH}/inc/pkg-config-wrapper"
+		"${BASEPATH}/inc/pkg-config-wrapper" \
 		"${glb_prefix}/bin/arm-linux-gnueabihf-pkg-config"
 	
 	unset CC

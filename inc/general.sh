@@ -397,10 +397,16 @@ finish_build(){
 		case $Yn in
 			[Yy]* ) \
 				print_log -n "Install tool-chains... "
-				mv "./${glb_build_name}" "./gcc-${glb_target}"
-				mv "gcc-${glb_target}" "/usr/local/"
-				glb_prefix="/usr/local/gcc-${glb_target}"
-				print_log "done"
+				mv "./${glb_build_name}" "./gcc-${glb_target}" || warning_mv
+				
+				if ! [ -d "/usr/local/gcc-${glb_target}" ]; then 
+					mv "gcc-${glb_target}" "/usr/local/"
+					glb_prefix="/usr/local/gcc-${glb_target}" || warning_mv
+					print_log "done"
+				else
+					glb_prefix="${BASEPATH}/gcc-${glb_target}"
+					print_log "faild - /usr/local/gcc-${glb_target} already exists!"
+				fi
 				break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;
