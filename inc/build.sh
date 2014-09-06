@@ -452,8 +452,6 @@ build_ncurses(){
 	
 	name=${package_ncurses[0]}
 	
-	# configure flags
-	
 	# configure args
 	build_args=(
 		--build=$glb_build
