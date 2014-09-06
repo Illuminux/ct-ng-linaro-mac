@@ -38,7 +38,7 @@ fi
 # include global variables
 source ./inc/global.cfg
 # include global functions
-#source ./inc/global.sh
+source ./inc/global.sh
 # include global functions
 source ./inc/general.sh
 # include package manager functions

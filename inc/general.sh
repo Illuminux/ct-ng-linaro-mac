@@ -90,75 +90,75 @@ create_dir_structure(){
 	
 	
 	# Create "download" directory if not exist
-	echo -n "Create download directory... " 
+	print_log -n "Create download directory... " 
 	
 	if [ -d "${glb_download_path}" ]; then
 	
-		echo "already exists"
+		print_log "already exists"
 	else
 	
-		mkdir -p ${glb_download_path} || exit 1
-		echo "done" 
+		mkdir -p ${glb_download_path} || error_mkdir
+		print_log "done" 
 	fi
 	
 	
 	
 	# Create "src" directory if not exist	
-	echo -n "Create source directory... " 
+	print_log -n "Create source directory... " 
 	
 	if [ -d "${glb_source_path}" ]; then
 	
-		echo "already exists" 
+		print_log "already exists" 
 	else
 	
-		mkdir -p ${glb_source_path} || exit 1
-		echo "done" 
+		mkdir -p ${glb_source_path} || error_mkdir
+		print_log "done" 
 	fi 
 	
 	
 	
 	# Create "build" directory if not exist
-	echo -n "Create build directory... " 
+	print_log -n "Create build directory... " 
 	
 	if [ -d "${glb_build_path}" ]; then
 	
 		rm -rf ${glb_build_path}
 	fi
 	
-	mkdir -p ${glb_build_path}/{static,build-kernel-headers} || exit 1
+	mkdir -p ${glb_build_path}/{static,build-kernel-headers} || error_mkdir
 	
-	echo "done" 
+	print_log "done" 
 	
 	
 	
 	# Create "install" directory if not exist	
-	echo -n "Create install directory... " 
+	print_log -n "Create install directory... " 
 	
 	if [ -d "${glb_prefix}" ]; then
 	
 		rm -rf ${glb_prefix}
 	fi
 	
-	mkdir -p ${glb_prefix}/arm-linux-gnueabihf || exit 1
+	mkdir -p ${glb_prefix}/arm-linux-gnueabihf || error_mkdir
 	
-	echo "done" 
+	print_log "done" 
 	
 	
 	
 	# Create "log" directory if not exist	
-	echo -n "Create log directory... " 
+	print_log -n "Create log directory... " 
 	
 	if [ -d "${glb_log_path}" ]; then
 	
 		rm -rf ${glb_log_path}
 	fi
 	
-	mkdir -p ${glb_log_path} || exit 1
+	mkdir -p ${glb_log_path} || error_mkdir
 	
 	# cerate defaul build log-file
 	touch ${glb_build_log}
 	
-	echo "done" 
+	print_log "done" 
 	
 	
 	# remove old builds 
@@ -174,12 +174,12 @@ create_dir_structure(){
 ##
 check_for_Command_Line_Tools(){
 	
-	echo -n "Checking for Xcode Command Line Tools... " 2>&1 | tee -a $glb_build_log
+	print_log -n "Checking for Xcode Command Line Tools... "
 	
 	if [ ! -f "/Library/Developer/CommandLineTools/usr/bin/gcc" ]; then
 		
-		echo "not installed" 2>&1 | tee -a $glb_build_log
-		echo "Command Line Tools are required for the following steps." 2>&1 | tee -a $glb_build_log
+		echo "not installed" print_log
+		echo "Command Line Tools are required for the following steps."
 		
 		while true; do
 		
@@ -195,7 +195,7 @@ check_for_Command_Line_Tools(){
 					
 					echo "Please wait until the command line tools has been installed and run the script again!"
 					
-					# Script musz be abort at this point, because the installer will not halt the script
+					# Script has to be abort at this point, because the installer will not halt the script
 					exit 0
 					;;
 					
@@ -210,7 +210,7 @@ check_for_Command_Line_Tools(){
 		done
 	else
 		
-		echo "installed" 2>&1 | tee -a $glb_build_log
+		print_log "installed"
 	fi
 }
 
@@ -222,7 +222,7 @@ check_for_Command_Line_Tools(){
 create_image(){
 	
 	# Create image if not exists 
-	echo "Create Case-Sensitive Disk Image"
+	print_log "Create Case-Sensitive Disk Image"
 	
 	if [ ! -f "${glb_disk_image_name}.sparseimage" ]; then
 		
@@ -230,23 +230,23 @@ create_image(){
 			-type SPARSE \
 			-fs JHFS+X \
 			-size ${glb_disk_image_size} \
-			-volname ${glb_disk_image_name} || exit 1
+			-volname ${glb_disk_image_name} || error_hdiutil
 	else
 		
-		echo "already exists"
+		print_log "already exists"
 	fi
 	
 	
 	# Mount image
-	echo -n "Mounting image... " 2>&1 | tee -a $glb_build_log
+	print_log -n "Mounting image... "
 	
 	if [ ! -d "${glb_disk_image_path}" ]; then 
 		
-		hdiutil attach ${glb_disk_image_name}.sparseimage -mountroot $BASEPATH >/dev/null 2>&1 || exit 1
-		echo "mounted to ${glb_disk_image_path}"
+		hdiutil attach ${glb_disk_image_name}.sparseimage -mountroot $BASEPATH >/dev/null 2>&1 || error_hdiutil
+		print_log "mounted to ${glb_disk_image_path}"
 	else
 		
-		echo "already mounted to ${glb_disk_image_path}"
+		print_log "already mounted to ${glb_disk_image_path}"
 	fi
 }
 
@@ -257,7 +257,7 @@ create_image(){
 ##
 strip_bin(){
 	
-	echo -n "Stripping all toolchain executables... " 2>&1 | tee -a $glb_build_log
+	print_log -n "Stripping all toolchain executables... "
 	
 	
 	# Stripping files in bin
@@ -288,7 +288,7 @@ strip_bin(){
 	done
 	
 	
-	echo "done"
+	print_log "done"
 }
 
 
@@ -299,35 +299,51 @@ strip_bin(){
 finish_build(){
 	
 	cd ${BASEPATH}
-
+	
+	
 	# Create compressed archive
-	echo -n "Create compressed archive... " 
-	mkdir -p "${BASEPATH}/image"
-	mv ${glb_prefix} "${BASEPATH}/image/${glb_build_name}"
+	print_log -n "Create compressed archive... " 
+	
+	mkdir -p "${BASEPATH}/image" || error_mkdir
+	
+	mv ${glb_prefix} "${BASEPATH}/image/${glb_build_name}" || warning_mv
+	
 	hdiutil \
 		create "./${glb_build_name}.dmg" \
 		-srcfolder "${BASEPATH}/image" \
-		-volname ${glb_build_name}  >/dev/null 2>&1
+		-volname ${glb_build_name}  >/dev/null 2>&1 || warning_hdiutil
+	
+	
 	zip -r -X "${glb_build_name}-mac.zip" "${glb_build_name}.dmg" >/dev/null
+	
 	rm -rf "${glb_build_name}.dmg" >/dev/null 2>&1
-	mv "${BASEPATH}/image/${glb_build_name}" ${glb_prefix}
+	mv "${BASEPATH}/image/${glb_build_name}" ${glb_prefix} || warning_mv
 	rm -rf "${BASEPATH}/image"
-	echo "done" 
+	
+	print_log "done"
+	
 	
 	cd $BASEPATH
 	
-	echo "Cleaning-up the build directory:"
+	
+	print_log "Cleaning-up the build directory:"
+	
+	
 	
 	# Compress all log files 
-	echo -n "Compress log files... " 
+	print_log -n "Compress log files... "
+	
 	FILES="${glb_log_path}/*.log"
 	for f in $FILES; do
 		zip -X "${f}.zip" $f >/dev/null 2>&1
 		rm -f $f >/dev/null 2>&1
 	done
-	echo "done"
 	
-	echo -n "Delete unnecessary archives from the download directory... " 
+	print_log "done"
+	
+	
+	print_log -n "Delete unnecessary archives from the download directory... "
+	
 	FILES="${glb_download_path}/*"
 	for f in $FILES; do
 		
@@ -338,53 +354,64 @@ finish_build(){
 			rm -rf $f >/dev/null 2>&1
 		fi
 	done
-	echo "done"
 	
-	echo -n "Delete build directory... " 
+	print_log "done"
+	
+	
+	print_log -n "Delete build directory... "
 	rm -rf $glb_build_path >/dev/null 2>&1
-	echo "done"
+	print_log "done"
+	
 	
 	while true; do
 		read -p "Delete source directory? [Y/n] " Yn
 		Yn=${Yn:-Y}
 		case $Yn in
-			[Yy]* ) \
-				echo -n "Delete source directory... "; \
-				rm -rf $glb_source_path; \
-				echo "done"; break;;
+			[Yy]* )
+				print_log -n "Delete source directory... "
+				rm -rf $glb_source_path
+				print_log "done"
+				break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;
 		esac
 	done
 	
-	echo -n "Unmount image... " 
-	hdiutil detach $glb_disk_image_path >/dev/null 2>&1
-	echo "done" 
+	
+	print_log -n "Unmount image... " 
+	hdiutil detach $glb_disk_image_path >/dev/null 2>&1 || warning_hdiutil
+	print_log "done" 
+	
 	
 	while true; do
 		read -p "Delete Case-Sensitive Disk Image? [Y/n] " Yn
 		Yn=${Yn:-Y}
 		case $Yn in
-			[Yy]* ) echo -n "Delete disk image... "; \
-			rm -rf "${glb_disk_image_name}.sparseimage"; \
-			echo "done"; break;;
+			[Yy]* ) 
+				print_log -n "Delete disk image... "
+				rm -rf "${glb_disk_image_name}.sparseimage"
+				print_log "done"
+				break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;
 		esac
 	done
 	
+	
 	cd $BASEPATH
+	
 	
 	while true; do
 		read -p "Install tool-chains now? [Y/n] " Yn
 		Yn=${Yn:-Y}
 		case $Yn in
 			[Yy]* ) \
-				echo -n "Install tool-chains... "; \
-				mv "./${glb_build_name}" "./gcc-${glb_target}"; \
-				mv "gcc-${glb_target}" "/usr/local/";\
+				print_log -n "Install tool-chains... "
+				mv "./${glb_build_name}" "./gcc-${glb_target}"
+				mv "gcc-${glb_target}" "/usr/local/"
 				glb_prefix="/usr/local/gcc-${glb_target}"
-				echo "done"; break;;
+				print_log "done"
+				break;;
 			[Nn]* ) break;;
 				* ) echo "Please answer Y (Yes) or n (No).";;
 		esac

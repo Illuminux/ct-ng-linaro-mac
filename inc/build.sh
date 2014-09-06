@@ -14,29 +14,29 @@ build_package(){
 	
 	name=$1
 
-	echo "Building ${name}:"
+	print_log "Building ${name}:"
 
 	# create new build dir
 	if ! [ -d "${build_dir}" ]; then
-		mkdir -p $build_dir
+		mkdir -p $build_dir || error_mkdir
 	fi
 	cd $build_dir
 	
 	# configure gmp
-	echo -n "Configure ${name}... "
+	print_log -n "Configure ${name}... "
 	
-	${glb_source_path}/${name}/configure ${build_args[@]} > "${glb_log_path}/${name}.log" 2>&1 || exit 1
+	${glb_source_path}/${name}/configure ${build_args[@]} > "${glb_log_path}/${name}.log" 2>&1 || error_configure
 	
-	echo "done"
+	print_log "done"
 	
 	# build gmp
-	echo -n "Build ${name}... "
-	make >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
-	echo "done"
+	print_log -n "Build ${name}... "
+	make >> "${glb_log_path}/${name}.log" 2>&1 || error_make
+	print_log "done"
 	
-	echo -n "Install ${name}... "
-	make install >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
-	echo "done"
+	print_log -n "Install ${name}... "
+	make install >> "${glb_log_path}/${name}.log" 2>&1 || error_install
+	print_log "done"
 	
 	cd $BASEPATH
 }
@@ -217,27 +217,27 @@ build_zlib(){
 	cd "${glb_source_path}/${name}"
 	
 	
-	echo "Building ${name}:"
+	print_log "Building ${name}:"
 	
 	# configure gmp
-	echo -n "Configure ${name}... "
+	print_log -n "Configure ${name}... "
 	
 	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	./configure \
 		--prefix=${glb_build_path}/static/zlib \
-		--static >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+		--static >> "${glb_log_path}/${name}.log" 2>&1 || error_configure
 	
-	echo "done"
+	print_log "done"
 	
 	# build gmp
-	echo -n "Build ${name}... "
-	make >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
-	echo "done"
+	print_log -n "Build ${name}... "
+	make >> "${glb_log_path}/${name}.log" 2>&1 || error_make
+	print_log "done"
 	
-	echo -n "Install ${name}... "
-	make install >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
-	echo "done"
+	print_log -n "Install ${name}... "
+	make install >> "${glb_log_path}/${name}.log" 2>&1 || error_install
+	print_log "done"
 }
 
 
@@ -257,8 +257,8 @@ build_binutils(){
 	build_args=(
 		--build=$glb_build
 		--host=$glb_build
-		--target=$TARGET
-		--prefix=${glb_prefix}
+		--target=$glb_target
+		--prefix=$glb_prefix
 		--disable-multilib
 		--disable-werror
 		--enable-ld=default
@@ -280,10 +280,10 @@ build_binutils(){
 	
 	cd "${glb_source_path}/${name}/build"
 	
-	echo -n "Install ${name} Documentation... "
-	make html >> "${glb_log_path}/${name}.log" 
-	make install-html-gas install-html-binutils install-html-ld install-html-gprof >> "${glb_log_path}/${name}.log" 
-	echo "done"
+	print_log -n "Install ${name} Documentation... "
+	make html >/dev/null 2>&1 || error_make
+	make install-html-gas install-html-binutils install-html-ld install-html-gprof >/dev/null 2>&1 || error_install
+	print_log "done"
 	
 	cd $BASEPATH
 	
@@ -301,18 +301,18 @@ build_kernel(){
 	
 	name=${package_kernel[0]}
 	
-	echo "Building Linux Kernel Headers:"
+	print_log "Building Linux Kernel Headers:"
 	
 	# Go into kernel source directory
 	cd "${glb_disk_image_path}/${name}"
 	
 	# create new build dir
 	if ! [ -d "${glb_disk_image_path}/${name}/build" ]; then
-		mkdir -p "${glb_disk_image_path}/${name}/build"
+		mkdir -p "${glb_disk_image_path}/${name}/build" || error_mkdir
 	fi
 	
 	# Install kernel sources
-	echo -n "Install Kernel... "
+	print_log -n "Install Kernel... "
 		
 	make \
 		-C "${glb_disk_image_path}/${name}" \
@@ -320,12 +320,12 @@ build_kernel(){
 		ARCH=arm \
 		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
 		V=1 \
-		headers_install > "${glb_log_path}/${name}.log" 2>&1 || exit 1
+		headers_install > "${glb_log_path}/${name}.log" 2>&1 || error_make
 
-	echo "done"
+	print_log "done"
 
 	# Checking kernel sources
-	echo -n "Checking Kernel headers... "
+	print_log -n "Checking Kernel headers... "
 	
 	make \
 		-C "${glb_disk_image_path}/${name}" \
@@ -333,9 +333,9 @@ build_kernel(){
 		ARCH=arm \
 		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
 		V=1 \
-		headers_check >> "${glb_log_path}/${name}.log" 2>&1 || exit 1
+		headers_check >> "${glb_log_path}/${name}.log" 2>&1 || error_make
 	
-	echo "done"
+	print_log "done"
 	
 	build_sysroot
 }
@@ -352,15 +352,15 @@ build_gcc(){
 	export CC_FOR_BUILD=$glb_cc
 	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 	export LDFLAGS="-lstdc++ -lm"
-	export CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv7-a   -mtune=cortex-a9 -mfpu=vfpv3-d16 -mhard-float -g -O2"
+	export CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv7-a -mtune=cortex-a9 -mfpu=vfpv3-d16 -mhard-float -g -O2"
 	export LDFLAGS_FOR_TARGET="-Wl,-EL"
 	
 	# configure args
 	build_args=(
 		--build=$glb_build
 		--host=$glb_build
-		--target=$TARGET
-		--prefix=${glb_prefix}
+		--target=$glb_target
+		--prefix=$glb_prefix
 		--with-sysroot="${glb_sysroot_path}/libc"
 		--enable-multilib
 		--with-arch=armv7-a
@@ -381,7 +381,7 @@ build_gcc(){
 		--disable-libstdcxx-pch
 		--enable-linker-build-id
 		--enable-gold
-		--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc
+		--with-local-prefix=$glb_prefix/arm-linux-gnueabihf/libc
 		--enable-c99
 		--enable-long-long
 		--with-mode=thumb
@@ -396,16 +396,16 @@ build_gcc(){
 	# build package 
 	build_package $name
 	
-	cd "${glb_source_path}/${name}/build"
+	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	echo -n "Install ${name} Documentation... "
-	make html >> "${glb_log_path}/${name}.log" 
-	make install-html-gcc >> "${glb_log_path}/${name}.log" 
-	echo "done"
+	print_log -n "Install ${name} Documentation... "
+	make html >/dev/null 2>&1 || error_make
+	make install-html-gcc >/dev/null 2>&1 || error_install
+	print_log "done"
 	
 	cd $BASEPATH
 	
-	ln -sf "${glb_prefix}/bin/arm-linux-gnueabihf-gcc" "${glb_prefix}/bin/arm-linux-gnueabihf-cc"
+	ln -sf "${glb_prefix}/bin/arm-linux-gnueabihf-gcc" "${glb_prefix}/bin/arm-linux-gnueabihf-cc" || warning_ln
 	
 	unset CC_FOR_BUILD
 	unset CFLAGS
@@ -429,7 +429,7 @@ build_expat(){
 	build_args=(
 		--build=$glb_build
 		--host=$glb_build
-		--target=$TARGET
+		--target=$glb_target
 		--prefix=${glb_build_path}/static
 		--disable-shared
 		--enable-static
@@ -458,7 +458,7 @@ build_ncurses(){
 	build_args=(
 		--build=$glb_build
 		--host=$glb_build
-		--target=$TARGET
+		--target=$glb_target
 		--prefix=${glb_build_path}/static
 		--disable-shared
 		--enable-static
@@ -490,8 +490,8 @@ build_gdb(){
 	build_args=(
 		--build=$glb_build
 		--host=$glb_build
-		--target=$TARGET
-		--prefix=${glb_prefix}
+		--target=$glb_target
+		--prefix=$glb_prefix
 		--with-build-sysroot="${glb_sysroot_path}/libc"
 		--with-sysroot="${glb_sysroot_path}/libc"
 		--with-expat=yes
@@ -510,12 +510,12 @@ build_gdb(){
 	# build package 
 	build_package $name
 	
-	cd "${glb_source_path}/${name}/build"
+	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	echo -n "Install ${name} Documentation... "
-	make -j2 html  >> ${glb_log_path}/gdb.log
-	make install-html-gdb >> ${glb_log_path}/gdb.log
-	echo "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
+	print_log -n "Install ${name} Documentation... "
+	make >/dev/null 2>&1 || error_make
+	make install-html-gdb >/dev/null 2>&1 || error_install
+	print_log "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
 	
 	unset CFLAGS
 	unset LDFLAGS
@@ -534,10 +534,10 @@ build_pkgconf(){
 	
 	# configure args
 	build_args=(
-		--prefix=${glb_prefix}
+		--prefix=$glb_prefix
 		--build=$glb_build
 		--host=$glb_build
-		--program-prefix="$TARGET-"
+		--program-prefix="$glb_target-"
 		--program-suffix="-real"
 		--with-pc-path="${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 
 	)
@@ -564,11 +564,11 @@ build_sysroot(){
 	name=${package_sysroot[0]}
 	
 	# install sysroot
-	echo -n "Install sysroot... "
+	print_log -n "Install sysroot... "
 	
 	# create new build dir
 	if ! [ -d "${glb_prefix}/arm-linux-gnueabihf/libc" ]; then
-		mkdir -p "${glb_prefix}/arm-linux-gnueabihf/libc"
+		mkdir -p "${glb_prefix}/arm-linux-gnueabihf/libc" || error_mkdir
 	fi
 
 	cp -a \
@@ -577,8 +577,8 @@ build_sysroot(){
 		"${glb_source_path}/${name}/sbin" \
 		"${glb_source_path}/${name}/usr" \
 		"${glb_source_path}/${name}/var" \
-		"${glb_sysroot_path}/libc" || exit 1
+		"${glb_sysroot_path}/libc" || error_copy
 	
-	echo "done"
+	print_log "done"
 }
 

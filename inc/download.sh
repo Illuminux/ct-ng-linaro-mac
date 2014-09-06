@@ -6,9 +6,9 @@
 #
 
 
-#
-# get Linaro crosscompiler sources 
-#
+##
+## get Linaro crosscompiler sources 
+##
 download_sources(){
 	
 	download_package ${package_kernel[@]}
@@ -28,9 +28,14 @@ download_sources(){
 }
 
 
-#
-# Download a source package
-#
+##
+## Download a source package
+##
+## @param $1 Name of the package
+## @param $2 Archive extansion of the package
+## @param $3 Url where the package can be download
+## @param $4 md5 sum of the package archiv
+##
 download_package(){
 
 	name=$1
@@ -41,7 +46,7 @@ download_package(){
 	
 	
 	# download package archiv
-	echo -n "Download ${archive}..."
+	print_log -n "Download ${archive}..."
 	if ! [ -f "${glb_download_path}/${archive}" ]; then
 		
 		curl --retry 3 \
@@ -51,9 +56,9 @@ download_package(){
 			--output "${glb_download_path}/${archive}" \
 			$url
 		
-		echo "${archive} loaded"
+		print_log "${archive} loaded"
 	else
-		echo "${archive} already loaded"
+		print_log "${archive} already loaded"
 	fi
 	
 	# test md5 sum of the package archiv
@@ -72,29 +77,36 @@ download_package(){
 }
 
 
-#
-# check md5 sum of an package archive
-#
+##
+## Check md5 sum of an package archive
+##
+## @param $1 The archive name
+## @param $2 The m5d sum number
+##
 md5_test(){
 	
 	archive=$1
 	m5dsum=$2
 	
 	# Test if archive is corrupted
-	echo -n "md5 check of $1... "
+	print_log -n "md5 check of $1... "
 	if [ $(md5 -q "${glb_download_path}/${archive}") != "$m5dsum" ]; then
-		echo "faild"
+		print_log "faild"
 		echo "*** error md5 test of ${archive} faild ***"
 		exit 1
 	else
-		echo "passed"
+		print_log "passed"
 	fi
 }
 
 
-#
-# extract an package archive
-#
+##
+## Extract an package archive
+##
+## @param $1 Destination where to extract the archive
+## @param $2 Archive extansion of the package
+## @param $3 Name of the package
+##
 extract_archive(){
 	
 	destination=$1
@@ -105,35 +117,37 @@ extract_archive(){
 	# remove existing directory	
 	if [ -d "${destination}/${name}/build" ]; then
 			
-		echo -n "Remove existing build directory... "
+		print_log -n "Remove existing build directory... "
 		rm -rf "${destination}/${name}/build"
-		echo "done"
+		print_log "done"
 	else
 			
-		echo -n "Remove existing directory... "
+		print_log -n "Remove existing directory... "
 		rm -rf "${destination}/${name}"
-		echo "done"
+		print_log "done"
 			
-		echo -n "Extracting ${archive}... "
+		print_log -n "Extracting ${archive}... "
 		tar \
 			xf "${glb_download_path}/${archive}" \
 			-C "${destination}" \
-			>/dev/null 2>&1 || (echo "faild"; exit 1)
-		echo "done"
+			>/dev/null 2>&1 || error_tar
+		print_log "done"
 	fi
 }
 
 
-#
-# patching extract package
-#
+##
+## Patch an extract package
+##
+## @param $1 Name of the package
+##
 patch_package(){
 
 	name=$1
 		
 	if [ -d "${glb_patch_path}/${name}" ]; then
 		
-		echo -n "Patch ${name}... "
+		print_log -n "Patch ${name}... "
 		
 		if ! [ -f "${glb_source_path}/${name}/.patched" ]; then
 			
@@ -147,9 +161,9 @@ patch_package(){
 		
 			touch "${glb_source_path}/${name}/.patched"
 			
-			echo "done"
+			print_log "done"
 		else
-			echo "already patched"
+			print_log "already patched"
 		fi
 	fi
 }
