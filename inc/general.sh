@@ -280,7 +280,7 @@ strip_bin(){
 	
 	
 	# Stripping files in libexec/gcc/TARGET
-	FILES="${glb_prefix}/libexec/gcc/${glb_target}/4.8.2/*"
+	FILES="${glb_prefix}/libexec/gcc/${glb_target}/${glb_linaro_gcc_version}/*"
 	
 	for f in $FILES; do
 		
@@ -298,8 +298,14 @@ strip_bin(){
 ##
 finish_build(){
 	
-	cd ${BASEPATH}
 	
+	print_log "Clean-up toolchain directory:"
+	
+	# Stripping all toolchain executables
+	strip_bin
+	
+	
+	cd ${BASEPATH}
 	
 	# Create compressed archive
 	print_log -n "Create compressed archive... " 
@@ -337,22 +343,6 @@ finish_build(){
 	for f in $FILES; do
 		zip -X "${f}.zip" $f >/dev/null 2>&1
 		rm -f $f >/dev/null 2>&1
-	done
-	
-	print_log "done"
-	
-	
-	print_log -n "Delete unnecessary archives from the download directory... "
-	
-	FILES="${glb_download_path}/*"
-	for f in $FILES; do
-		
-		if [ $f != "${glb_download_path}/${glb_linaro_src1_arch}" ] \
-		&& [ $f != "${glb_download_path}/${glb_linaro_src2_arch}" ] \
-		&& [ $f != "${glb_download_path}/${glb_zlib_arch}" ] \
-		&& [ $f != "${glb_download_path}/${glb_ncurses_arch}" ] ; then
-			rm -rf $f >/dev/null 2>&1
-		fi
 	done
 	
 	print_log "done"

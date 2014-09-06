@@ -54,14 +54,14 @@ build_gmp(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--prefix=${glb_build_path}/static
-		--enable-fft
-		--enable-mpbsd
-		--enable-cxx
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--prefix=${glb_build_path}/static"
+		"--enable-fft"
+		"--enable-mpbsd"
+		"--enable-cxx"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -87,12 +87,12 @@ build_mpfr(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--prefix=${glb_build_path}/static
-		--with-gmp=${glb_build_path}/static
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--prefix=${glb_build_path}/static"
+		"--with-gmp=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -120,12 +120,12 @@ build_isl(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--prefix=${glb_build_path}/static
-		--with-gmp=${glb_build_path}/static
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--prefix=${glb_build_path}/static"
+		"--with-gmp=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -153,13 +153,13 @@ build_cloog(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--prefix=${glb_build_path}/static
-		--with-gmp-prefix=${glb_build_path}/static
-		--with-isl-prefix=${glb_build_path}/static
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--prefix=${glb_build_path}/static"
+		"--with-gmp-prefix=${glb_build_path}/static"
+		"--with-isl-prefix=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -188,13 +188,13 @@ build_mpc(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--prefix=${glb_build_path}/static
-		--with-gmp-prefix=${glb_build_path}/static
-		--with-mpfr-prefix=${glb_build_path}/static
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--prefix=${glb_build_path}/static"
+		"--with-gmp-prefix=${glb_build_path}/static"
+		"--with-mpfr-prefix=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -229,7 +229,7 @@ build_zlib(){
 	CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE" \
 	./configure \
-		--prefix=${glb_build_path}/static/zlib \
+		--prefix="${glb_build_path}/static/zlib" \
 		--static >> "${glb_log_path}/${name}.log" 2>&1 || error_configure
 	
 	print_log "done"
@@ -261,19 +261,19 @@ build_binutils(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--target=$glb_target
-		--prefix=$glb_prefix
-		--disable-multilib
-		--disable-werror
-		--enable-ld=default
-		--enable-gold=yes
-		--enable-threads
-		--with-float=hard
-		--with-sysroot="${glb_sysroot_path}/libc"
-		--with-pkgversion=$glb_build_version
-		--with-bugurl=$glb_bug_url
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--target=${glb_target}"
+		"--prefix=${glb_prefix}"
+		"--disable-multilib"
+		"--disable-werror"
+		"--enable-ld=default"
+		"--enable-gold=yes"
+		"--enable-threads"
+		"--with-float=hard"
+		"--with-sysroot=${glb_sysroot_path}/libc"
+		"--with-pkgversion=${glb_build_version}"
+		"--with-bugurl=${glb_bug_url}"
 	)
 	
 	# build in dir
@@ -284,7 +284,7 @@ build_binutils(){
 	
 	cd "${glb_source_path}/${name}/build"
 	
-	print_log -n "Install ${name} documentation... "
+	print_log -n "Install ${name} manuals... "
 	make html >/dev/null 2>&1 || error_make
 	make install-html-gas install-html-binutils install-html-ld install-html-gprof >/dev/null 2>&1 || error_install
 	print_log "done"
@@ -363,37 +363,37 @@ build_gcc(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--target=$glb_target
-		--prefix=$glb_prefix
-		--with-sysroot="${glb_sysroot_path}/libc"
-		--enable-multilib
-		--with-arch=armv7-a
-		--with-tune=cortex-a9
-		--with-fpu=vfpv3-d16
-		--with-float=hard
-		--enable-__cxa_atexit
-		--enable-libmudflap
-		--enable-libgomp
-		--enable-libssp
-		--with-gmp=${glb_build_path}/static
-		--with-mpfr=${glb_build_path}/static
-		--with-mpc=${glb_build_path}/static
-		--with-isl=${glb_build_path}/static
-		--with-cloog=${glb_build_path}/static
-		--with-libelf=${glb_build_path}/static
-		--enable-threads=posix
-		--disable-libstdcxx-pch
-		--enable-linker-build-id
-		--enable-gold
-		--with-local-prefix=$glb_prefix/arm-linux-gnueabihf/libc
-		--enable-c99
-		--enable-long-long
-		--with-mode=thumb
-		--with-float=hard
-		--with-pkgversion=$glb_build_version
-		--with-bugurl=$glb_bug_url
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--target=${glb_target}"
+		"--prefix=${glb_prefix}"
+		"--with-sysroot=${glb_sysroot_path}/libc"
+		"--enable-multilib"
+		"--with-arch=armv7-a"
+		"--with-tune=cortex-a9"
+		"--with-fpu=vfpv3-d16"
+		"--with-float=hard"
+		"--enable-__cxa_atexit"
+		"--enable-libmudflap"
+		"--enable-libgomp"
+		"--enable-libssp"
+		"--with-gmp=${glb_build_path}/static"
+		"--with-mpfr=${glb_build_path}/static"
+		"--with-mpc=${glb_build_path}/static"
+		"--with-isl=${glb_build_path}/static"
+		"--with-cloog=${glb_build_path}/static"
+		"--with-libelf=${glb_build_path}/static"
+		"--enable-threads=posix"
+		"--disable-libstdcxx-pch"
+		"--enable-linker-build-id"
+		"--enable-gold"
+		"--with-local-prefix=${glb_prefix}/arm-linux-gnueabihf/libc"
+		"--enable-c99"
+		"--enable-long-long"
+		"--with-mode=thumb"
+		"--with-float=hard"
+		"--with-pkgversion=${glb_build_version}"
+		"--with-bugurl=${glb_bug_url}"
 	)
 	
 	# build in dir
@@ -404,7 +404,7 @@ build_gcc(){
 	
 	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	print_log -n "Install ${name} documentation... "
+	print_log -n "Install ${name} manuals... "
 	make html >/dev/null 2>&1 || error_make
 	make install-html-gcc >/dev/null 2>&1 || error_install
 	print_log "done"
@@ -433,12 +433,12 @@ build_expat(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--target=$glb_target
-		--prefix=${glb_build_path}/static
-		--disable-shared
-		--enable-static
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--target=${glb_target}"
+		"--prefix=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
 	)
 	
 	# build in dir
@@ -460,13 +460,13 @@ build_ncurses(){
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--target=$glb_target
-		--prefix=${glb_build_path}/static
-		--disable-shared
-		--enable-static
-		--without-ada
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--target=${glb_target}"
+		"--prefix=${glb_build_path}/static"
+		"--disable-shared"
+		"--enable-static"
+		"--without-ada"
 	)
 	
 	# build in dir
@@ -488,25 +488,25 @@ build_gdb(){
 	name=${package_gdb[0]}
 	
 	# configure flags
-	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
-	export LDFLAGS="-L${glb_build_path}/static/lib -L${glb_build_path}/static/zlib/lib"
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include -I${glb_build_path}/static/zlib/include"
+	export LDFLAGS="-L${glb_build_path}/static/lib -L${glb_build_path}/static/lib -L${glb_build_path}/static/zlib/lib"
 	
 	# configure args
 	build_args=(
-		--build=$glb_build
-		--host=$glb_build
-		--target=$glb_target
-		--prefix=$glb_prefix
-		--with-build-sysroot="${glb_sysroot_path}/libc"
-		--with-sysroot="${glb_sysroot_path}/libc"
-		--with-expat=yes
-		--disable-werror
-		--enable-threads
-		--with-python=no
-		--with-libexpat-prefix="${glb_build_path}/static"
-		--disable-sim
-		--with-pkgversion=$glb_build_version
-		--with-bugurl=$glb_bug_url
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--target=${glb_target}"
+		"--prefix=${glb_prefix}"
+		"--with-build-sysroot=${glb_sysroot_path}/libc"
+		"--with-sysroot=${glb_sysroot_path}/libc"
+		"--with-expat=yes"
+		"--disable-werror"
+		"--enable-threads"
+		"--with-python=no"
+		"--with-libexpat-prefix=${glb_build_path}/static"
+		"--disable-sim"
+		"--with-pkgversion=$glb_build_version"
+		"--with-bugurl=$glb_bug_url"
 	)
 	
 	# build in dir
@@ -517,7 +517,7 @@ build_gdb(){
 	
 	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	print_log -n "Install ${name} documentation... "
+	print_log -n "Install ${name} manuals... "
 	make >/dev/null 2>&1 || error_make
 	make install-html-gdb >/dev/null 2>&1 || error_install
 	print_log "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
@@ -541,11 +541,11 @@ build_pkgconf(){
 	# configure args
 	build_args=(
 		--prefix=$glb_prefix
-		--build=$glb_build
-		--host=$glb_build
-		--program-prefix="$glb_target-"
-		--program-suffix="-real"
-		--with-pc-path="${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 
+		"--build=${glb_build}"
+		"--host=${glb_build}"
+		"--program-prefix=${glb_target}-"
+		"--program-suffix=-real"
+		"--with-pc-path=${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 
 	)
 	
 	# build in dir
@@ -554,9 +554,9 @@ build_pkgconf(){
 	# build package 
 	build_package $name
 	
-#	cp -a \
-#		/home/knut/Develop/crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/scripts/build/cross_extras/pkg-config-wrapper
-#		/home/knut/Develop//crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/install/bin/arm-linux-gnueabihf-pkg-config
+	cp -a \
+		"${BASEPATH}/inc/pkg-config-wrapper"
+		"${glb_prefix}/bin/arm-linux-gnueabihf-pkg-config"
 	
 	unset CC
 	unset build_args

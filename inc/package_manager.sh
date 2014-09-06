@@ -19,13 +19,13 @@ package_manager(){
 	
 	package_manager_brew
 	
-	echo -n "Checking for GNU Compiler Collection... " 2>&1 | tee -a $glb_build_log
+	print_log -n "Checking for GNU Compiler Collection... "
 	if ! gcc_loc="$(type -p gcc-4.8)" || [ -z "$gcc_loc" ]; then	
-		echo "not fond, will be installed!" 2>&1 | tee -a $glb_build_log
+		print_log "not fond, will be installed!"
 		brew install homebrew/versions/gcc48
 		brew install binutils
 	else
-		echo "yes" 2>&1 | tee -a $glb_build_log
+		print_log "yes"
 	fi
 }
 
@@ -57,7 +57,7 @@ package_manager_fink(){
 	echo -n "Checking for Package Manager Fink... "
 	if [ $? -eq 1 ]; then
 		echo "found"
-		echo ""
+		echo 
 		echo "The following steps are designed for the package manager Brew."
 		echo "Please uninstall Fink and the run script again, Brew will be installed automatically."
 		exit 1
@@ -79,7 +79,7 @@ package_manager_port(){
 	echo -n "Checking for Package Manager MacPort... "
 	if [ $? -eq 1 ]; then
 		echo "found"
-		echo ""
+		echo 
 		echo "The following steps are designed for the package manager Brew."
 		echo "Please uninstall MacPort and the run script again, Brew will be installed automatically."
 		exit 1
@@ -124,7 +124,7 @@ package_manager_brew(){
 ##
 package_manager_install(){
 	
-	echo "Installing Homebrew..."
+	print_log "Installing Homebrew..."
 	ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" || exit 1
 	
 	brew doctor
@@ -133,5 +133,5 @@ package_manager_install(){
 	#brew tap versions
 	brew update
 	
-	echo "Homebrew successfully installed"
+	print_log "Homebrew successfully installed"
 }

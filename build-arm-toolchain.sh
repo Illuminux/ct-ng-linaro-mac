@@ -119,10 +119,6 @@ build_gdb
 build_pkgconf
 
 
-# Stripping all toolchain executables
-strip_bin
-
-
 # Cleanup build directory and install tool-chains
 finish_build
 
