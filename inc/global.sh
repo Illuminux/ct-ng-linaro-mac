@@ -13,7 +13,7 @@ print_log(){
 
 	if [ "$1" == "-n" ]; then 
 		
-		echo -n $2
+		echo -n "${2}"
 		echo -n $2 >> $glb_build_log
 	else
 	

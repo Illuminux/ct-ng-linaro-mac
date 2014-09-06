@@ -114,8 +114,9 @@ build_isl(){
 	name=${package_isl[0]}
 	
 	# configure flags
-	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
-	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include"
+	export LDFLAGS="-L${glb_build_path}/static/lib"
 	
 	# configure args
 	build_args=(
@@ -135,6 +136,7 @@ build_isl(){
 	
 	unset CFLAGS
 	unset CXXFLAGS
+	unset LDFLAGS
 	unset build_args
 }
 
@@ -179,8 +181,9 @@ build_mpc(){
 	name=${package_mpc[0]}
 	
 	# configure flags 
-	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
-	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include"
+	export LDFLAGS="-L${glb_build_path}/static/lib"
 
 	
 	# configure args
@@ -202,6 +205,7 @@ build_mpc(){
 	
 	unset CFLAGS
 	unset CXXFLAGS
+	unset LDFLAGS
 	unset build_args
 }
 
@@ -249,9 +253,11 @@ build_binutils(){
 	name=${package_binutils[0]}
 	
 	# configure flags
-	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
-	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/zlib/include"
-	export LDFLAGS="-L${glb_build_path}/static/zlib/lib"
+	export CC=$glb_cc
+	export CXX=$glb_cxx
+	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include -I${glb_build_path}/static/zlib/include"
+	export CXXFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE -I${glb_build_path}/static/include -I${glb_build_path}/static/zlib/include"
+	export LDFLAGS="-lstdc++ -L${glb_build_path}/static/lib -L${glb_build_path}/static/zlib/lib"
 	
 	# configure args
 	build_args=(
@@ -269,8 +275,6 @@ build_binutils(){
 		--with-pkgversion=$glb_build_version
 		--with-bugurl=$glb_bug_url
 	)
-#		--with-pkgversion="\"${glb_build_version}\""
-#	)
 	
 	# build in dir
 	build_dir=${glb_source_path}/${name}/build
@@ -280,13 +284,15 @@ build_binutils(){
 	
 	cd "${glb_source_path}/${name}/build"
 	
-	print_log -n "Install ${name} Documentation... "
+	print_log -n "Install ${name} documentation... "
 	make html >/dev/null 2>&1 || error_make
 	make install-html-gas install-html-binutils install-html-ld install-html-gprof >/dev/null 2>&1 || error_install
 	print_log "done"
 	
 	cd $BASEPATH
 	
+	unset CC
+	unset CXX
 	unset CFLAGS
 	unset CXXFLAGS
 	unset LDFLAGS
@@ -398,7 +404,7 @@ build_gcc(){
 	
 	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	print_log -n "Install ${name} Documentation... "
+	print_log -n "Install ${name} documentation... "
 	make html >/dev/null 2>&1 || error_make
 	make install-html-gcc >/dev/null 2>&1 || error_install
 	print_log "done"
@@ -468,7 +474,8 @@ build_ncurses(){
 	
 	# build package 
 	build_package $name
-	
+
+#	unset CC
 	unset build_args
 }
 
@@ -510,7 +517,7 @@ build_gdb(){
 	
 	cd "${glb_source_path}/${name}/build" || error_mkdir
 	
-	print_log -n "Install ${name} Documentation... "
+	print_log -n "Install ${name} documentation... "
 	make >/dev/null 2>&1 || error_make
 	make install-html-gdb >/dev/null 2>&1 || error_install
 	print_log "done - skipped pdf MacTeX is not installed" 2>&1 | tee -a $glb_build_log
@@ -528,7 +535,8 @@ build_pkgconf(){
 	
 	name=${package_pkgconf[0]}
 	
-	# configure flags
+	
+	export CC=$glb_cc
 	
 	# configure args
 	build_args=(
@@ -550,6 +558,7 @@ build_pkgconf(){
 #		/home/knut/Develop/crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/scripts/build/cross_extras/pkg-config-wrapper
 #		/home/knut/Develop//crosstool-ng-2013.12/lib/ct-ng-linaro-1.13.1-4.8-2013.12/install/bin/arm-linux-gnueabihf-pkg-config
 	
+	unset CC
 	unset build_args
 }
 

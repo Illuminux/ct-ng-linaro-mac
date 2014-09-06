@@ -89,6 +89,23 @@ print_end_screen(){
 create_dir_structure(){
 	
 	
+	# Create "log" directory if not exist	
+	echo -n "Create log directory... " 
+	
+	if [ -d "${glb_log_path}" ]; then
+	
+		rm -rf ${glb_log_path}
+	fi
+	
+	mkdir -p ${glb_log_path} || error_mkdir
+	
+	# cerate defaul build log-file
+	echo ${glb_build_log}
+
+	print_log "done" 
+	
+
+	
 	# Create "download" directory if not exist
 	print_log -n "Create download directory... " 
 	
@@ -140,23 +157,6 @@ create_dir_structure(){
 	fi
 	
 	mkdir -p ${glb_prefix}/arm-linux-gnueabihf || error_mkdir
-	
-	print_log "done" 
-	
-	
-	
-	# Create "log" directory if not exist	
-	print_log -n "Create log directory... " 
-	
-	if [ -d "${glb_log_path}" ]; then
-	
-		rm -rf ${glb_log_path}
-	fi
-	
-	mkdir -p ${glb_log_path} || error_mkdir
-	
-	# cerate defaul build log-file
-	touch ${glb_build_log}
 	
 	print_log "done" 
 	

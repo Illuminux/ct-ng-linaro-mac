@@ -119,10 +119,6 @@ build_gdb
 build_pkgconf
 
 
-# remove temporrery links
-package_manager_dellinks
-
-
 # Stripping all toolchain executables
 strip_bin
 
