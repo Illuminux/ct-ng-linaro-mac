@@ -34,19 +34,43 @@ if [ "$(uname -s)" != "Darwin" ]; then
 	exit 0
 fi
 
+	
+if [ "$#" -eq 0 ]; then
+	build_target="default"
+else
+	# Select the build target
+	case $1 in
+
+		default) 
+			build_target="default"
+			;;
+			
+		raspian) 
+			build_target="raspian"
+			;;
+
+		*) 
+			echo "Usage"; exit 0
+			;;
+	esac
+fi
+
+
 
 # include global variables
-source ./inc/global.cfg
+source ./scripts/global.cfg
 # include global functions
-source ./inc/global.sh
+source ./scripts/global.sh
 # include global functions
-source ./inc/general.sh
+source ./scripts/general.sh
 # include package manager functions
-source ./inc/package_manager.sh
-# Include download functions
-source ./inc/download.sh
+source ./scripts/package_manager.sh
+
 # Include build functions
-source ./inc/build.sh
+source ./scripts/build.sh
+
+# Include download functions
+source ./scripts/download.sh
 
 
 # Set Enviroment
