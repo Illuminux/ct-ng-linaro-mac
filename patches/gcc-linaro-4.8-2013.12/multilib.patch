@@ -1,0 +1,35 @@
+--- gcc-linaro-4.8-2013.04/gcc/config/arm/t-mlibs.ml~	2013-04-17 22:38:06.709337636 +0200
++++ gcc-linaro-4.8-2013.04/gcc/config/arm/t-mlibs	2013-04-17 22:38:06.708337649 +0200
+@@ -0,0 +1,21 @@
++# A set of predefined MULTILIB for different ARM targets.
++# Through the configure option --with-multilib-list, user can customize the
++# final MULTILIB implementation.
++
++comma := ,
++space :=
++space +=
++
++MULTILIB_OPTIONS   = marm
++MULTILIB_DIRNAMES  = arm
++MULTILIB_OPTIONS  += march=armv4t
++MULTILIB_DIRNAMES += armv4t
++MULTILIB_OPTIONS  += mfloat-abi=soft
++MULTILIB_DIRNAMES += soft
++
++MULTILIB_EXCEPTIONS =
++
++MULTILIB_REQUIRED = marm/march=armv4t/mfloat-abi=soft
++
++MULTILIB_OSDIRNAMES = marm/march.armv4t/mfloat-abi.soft=!arm-linux-gnueabi
++
+--- gcc-linaro-4.8-2013.04/gcc/config.gcc.ml~	2013-04-08 21:06:00.000000000 +0200
++++ gcc-linaro-4.8-2013.04/gcc/config.gcc	2013-04-17 22:38:59.084682854 +0200
+@@ -875,7 +875,7 @@ arm*-*-linux-*)			# ARM GNU/Linux with E
+ 	    tm_defines="${tm_defines} TARGET_BIG_ENDIAN_DEFAULT=1"
+ 	    ;;
+ 	esac
+-	tmake_file="${tmake_file} arm/t-arm arm/t-arm-elf arm/t-bpabi arm/t-linux-eabi"
++	tmake_file="${tmake_file} arm/t-arm arm/t-arm-elf arm/t-bpabi arm/t-linux-eabi arm/t-mlibs"
+ 	tm_file="$tm_file arm/bpabi.h arm/linux-eabi.h arm/aout.h vxworks-dummy.h arm/arm.h"
+ 	# Define multilib configuration for arm-linux-androideabi.
+ 	case ${target} in

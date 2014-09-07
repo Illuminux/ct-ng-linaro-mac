@@ -1,0 +1,20 @@
+--- gcc-linaro-4.8-2013.04/gcc/Makefile.in.cxx~	2013-04-17 22:36:43.841373628 +0200
++++ gcc-linaro-4.8-2013.04/gcc/Makefile.in	2013-04-17 22:37:19.581926810 +0200
+@@ -223,17 +223,8 @@ HOST_LIBS = @HOST_LIBS@
+ # The name of the compiler to use.
+ COMPILER = $(CXX)
+ COMPILER_FLAGS = $(CXXFLAGS)
+-# If HOST_LIBS is set, then the user is controlling the libraries to
+-# link against.  In that case, link with $(CC) so that the -lstdc++
+-# library is not introduced.  If HOST_LIBS is not set, link with
+-# $(CXX) to pick up -lstdc++.
+-ifeq ($(HOST_LIBS),)
+ LINKER = $(CXX)
+ LINKER_FLAGS = $(CXXFLAGS)
+-else
+-LINKER = $(CC)
+-LINKER_FLAGS = $(CFLAGS)
+-endif
+ 
+ # -------------------------------------------
+ # Programs which operate on the build machine

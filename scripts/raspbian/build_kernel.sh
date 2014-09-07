@@ -1,0 +1,1 @@
+../default/build_kernel.sh

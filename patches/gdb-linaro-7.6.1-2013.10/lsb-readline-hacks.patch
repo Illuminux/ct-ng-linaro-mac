@@ -1,0 +1,29 @@
+=== modified file 'readline/terminal.c'
+--- a/readline/terminal.c	2011-05-11 23:38:37 +0000
++++ b/readline/terminal.c	2012-02-13 05:44:14 +0000
+@@ -543,20 +543,24 @@
+       /* Reasonable defaults for tgoto().  Readline currently only uses
+          tgoto if _rl_term_IC or _rl_term_DC is defined, but just in case we
+          change that later... */
++#if BROKEN_LSB
+       PC = '\0';
+       BC = _rl_term_backspace = "\b";
+       UP = _rl_term_up;
++#endif
+ 
+       return 0;
+     }
+ 
+   get_term_capabilities (&buffer);
+ 
++#if BROKEN_LSB
+   /* Set up the variables that the termcap library expects the application
+      to provide. */
+   PC = _rl_term_pc ? *_rl_term_pc : 0;
+   BC = _rl_term_backspace;
+   UP = _rl_term_up;
++#endif
+ 
+   if (!_rl_term_cr)
+     _rl_term_cr = "\r";
+

@@ -1,0 +1,89 @@
+# DP: multiarch search paths
+
+Index: b/gold/Makefile.am
+===================================================================
+--- a/gold/Makefile.am	2012-07-31 20:41:40.000000000 +0000
++++ b/gold/Makefile.am	2012-07-31 20:42:12.412313288 +0000
+@@ -15,7 +15,7 @@
+ 	-I$(srcdir) -I$(srcdir)/../include -I$(srcdir)/../elfcpp \
+ 	-DLOCALEDIR="\"$(datadir)/locale\"" \
+ 	-DBINDIR="\"$(bindir)\"" -DTOOLBINDIR="\"$(tooldir)/bin\"" \
+-	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@
++	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@ @MULTIARCH_DIRNAME@
+ 
+ LIBIBERTY = ../libiberty/libiberty.a
+ 
+Index: b/gold/configure
+===================================================================
+--- a/gold/configure	2012-07-31 20:13:41.000000000 +0000
++++ b/gold/configure	2012-07-31 20:47:33.480320543 +0000
+@@ -594,6 +594,7 @@
+ MAINT
+ MAINTAINER_MODE_FALSE
+ MAINTAINER_MODE_TRUE
++MULTIARCH_DIRNAME
+ HAVE_PUBNAMES_FALSE
+ HAVE_PUBNAMES_TRUE
+ CXXCPP
+@@ -7453,6 +7454,14 @@
+   fi
+ 
+ 
++if test x$DEB_TARGET_MULTIARCH != x; then
++  multiarch=$DEB_TARGET_MULTIARCH
++  if test -n "$multiarch"; then
++    MULTIARCH_DIRNAME='-DMULTIARCH_DIRNAME=\"'$multiarch'\"'
++  fi
++fi
++
++
+ 
+ { $as_echo "$as_me:${as_lineno-$LINENO}: checking whether to enable maintainer-specific portions of Makefiles" >&5
+ $as_echo_n "checking whether to enable maintainer-specific portions of Makefiles... " >&6; }
+Index: b/gold/configure.ac
+===================================================================
+--- a/gold/configure.ac	2012-07-31 20:13:41.000000000 +0000
++++ b/gold/configure.ac	2012-07-31 20:42:12.416313288 +0000
+@@ -575,6 +575,14 @@
+ AC_CHECK_FUNCS(setlocale)
+ AM_LC_MESSAGES
+ 
++if test x$DEB_TARGET_MULTIARCH != x; then
++  multiarch=$DEB_TARGET_MULTIARCH
++  if test -n "$multiarch"; then
++    MULTIARCH_DIRNAME='-DMULTIARCH_DIRNAME=\"'$multiarch'\"'
++  fi
++fi
++AC_SUBST(MULTIARCH_DIRNAME)
++
+ AM_MAINTAINER_MODE
+ 
+ AC_OUTPUT(Makefile testsuite/Makefile po/Makefile.in:po/Make-in)
+Index: b/gold/options.cc
+===================================================================
+--- a/gold/options.cc	2012-07-31 20:41:40.000000000 +0000
++++ b/gold/options.cc	2012-07-31 20:42:12.416313288 +0000
+@@ -1142,6 +1142,10 @@
+ 	       || this->user_set_sysroot()
+ 	       || *TARGET_SYSTEM_ROOT != '\0')
+ 	{
++#ifdef MULTIARCH_DIRNAME
++	  this->add_to_library_path_with_sysroot("/lib/" MULTIARCH_DIRNAME);
++	  this->add_to_library_path_with_sysroot("/usr/lib/" MULTIARCH_DIRNAME);
++#endif
+ 	  this->add_to_library_path_with_sysroot("/lib");
+ 	  this->add_to_library_path_with_sysroot("/usr/lib");
+ 	}
+Index: b/gold/Makefile.in
+===================================================================
+--- a/gold/Makefile.in	2012-07-31 20:41:40.000000000 +0000
++++ b/gold/Makefile.in	2012-07-31 20:42:12.416313288 +0000
+@@ -371,7 +371,7 @@
+ 	-I$(srcdir) -I$(srcdir)/../include -I$(srcdir)/../elfcpp \
+ 	-DLOCALEDIR="\"$(datadir)/locale\"" \
+ 	-DBINDIR="\"$(bindir)\"" -DTOOLBINDIR="\"$(tooldir)/bin\"" \
+-	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@
++	-DTOOLLIBDIR="\"$(tooldir)/lib\"" @INCINTL@ @MULTIARCH_DIRNAME@
+ 
+ LIBIBERTY = ../libiberty/libiberty.a
+ @PLUGINS_TRUE@LIBDL = -ldl

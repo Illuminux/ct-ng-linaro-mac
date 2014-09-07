@@ -1,0 +1,11 @@
+diff -Naru gdb-linaro-7.5-2012.12/gdb/gnulib/import/mbsrtowcs.c patched/gdb/gnulib/import/mbsrtowcs.c
+--- gdb-linaro-7.5-2012.12/gdb/gnulib/import/mbsrtowcs.c	2012-12-07 17:42:59.000000000 +0800
++++ patched/gdb/gnulib/import/mbsrtowcs.c	2012-12-14 11:48:12.098060641 +0800
+@@ -28,5 +28,6 @@
+ 
+ 
+ extern mbstate_t _gl_mbsrtowcs_state;
+-
++#ifndef _WIN32
+ #include "mbsrtowcs-impl.h"
++#endif

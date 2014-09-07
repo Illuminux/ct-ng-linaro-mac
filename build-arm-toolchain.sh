@@ -35,80 +35,78 @@ if [ "$(uname -s)" != "Darwin" ]; then
 fi
 
 
+# Catch selectet target from command line parameter
+if [ "$#" -eq 0 ]; then
+	build_target="default"
+else
+	# Select the build target
+	case $1 in
+
+		default) build_target="default";;
+			
+		raspbian) build_target="raspbian";;
+
+		*) 
+			echo "Usage:"
+			echo "$0 [OPTION]"
+			echo 
+			echo "Options:"
+			echo "  default   Default arm cross compiler cortex-a9 (eg. BeagleBone Black)."
+			echo "            Can be left blank it is the default build."
+			echo "  raspbian  Raspberry PI ARMv6 Raspbian build."
+			echo
+			exit 0
+			;;
+	esac
+fi
+
+
+
 # include global variables
-source ./inc/global.cfg
+source ./scripts/global.cfg
 # include global functions
-source ./inc/global.sh
+source ./scripts/global.sh
+# include global functions
+source ./scripts/general.sh
 # include package manager functions
-source ./inc/package_manager.sh
-# Include download functions
-source ./inc/download.sh
+source ./scripts/package_manager.sh
+
 # Include build functions
-source ./inc/build.sh
+source ./scripts/build.sh
+
+# Include download functions
+source ./scripts/download.sh
 
 
 # Set Enviroment
-export TARGET=${glb_target}
-export PREFIX=${glb_prefix}
-export PATH=/usr/local/bin:$PREFIX/bin:$PATH
-
-BUILD=`gcc -v 2>&1 | grep "Target" | sed 's/Target:[ /t]*//'`
-BUILDVERSION="Illuminux Mac OSX Intelx86 based on Linaro ${glb_linaro_version}"
-BUGURL="https://github.com/Illuminux/arm-cross-toolchain-Mac_OS_X/issues"
-JOBS="-j`sysctl hw.ncpu | awk '{print $2}'`"
+export PATH=/usr/local/bin:$glb_prefix/bin:$PATH
 
 
+# Print default start screen
+print_start_screen
 
-# Clear screen
-clear 
-
-while true; do
-
-	echo "This script will build ARM Linux Cross-Toolchain on and for Mac OS X,"
-	echo "based on Linaro Toolchain Sources."
-	echo "During the execution, several files and programs will be downloaded" 
-	echo "from the Internet and installed on your Computer."
-	echo "For the execution ${glb_disk_image_size}Bytes of free hard drives"
-	echo "memory will be needed!"
-	echo
-	echo "This program comes with ABSOLUTELY NO WARRANTY; for details type [l]."
-	echo "This is free software, and you are welcome to redistribute it"
-	echo "under certain conditions; type [l] for details."
-	echo
-	
-	read -p "Continue the script [Y/n]? Or for read the License [l]: " Yn
-	Yn=${Yn:-Y}
-	case $Yn in
-		[Yy]* ) break;;
-		[Ll]* ) less gpl-3.0.txt; clear;;
-		[Nn]* ) clear; exit 0;;
-			* ) clear; echo  "Please answer Y (Yes) or n (No)."; echo;;
-	esac
-done
-
-clear
-echo "Start build process. This may take several hours!"
-echo
 
 # Create directories
 create_dir_structure
 
+
 # Check if command line tools are installed. If not, installe them.
 check_for_Command_Line_Tools
+
 
 # serach for installed packagmanager
 # - abort on fink/port
 # - install brew if not found
 package_manager
 
+
 # create a case sensitiv disk image 
 create_image
+
 
 # get Linaro crosscompiler sources 
 download_sources
 
-# Build sysroot
-build_sysroot
 
 # Build Binutils
 build_gmp
@@ -131,23 +129,11 @@ build_zlib
 # Build Binutils
 build_binutils
 
-# Build GCC Part 1 static core C compiler
-build_gcc1
-
 # Build Linux Kernel Source and Headers
 build_kernel
 
-# Rebuild sysroot
-build_sysroot
-
-# Build gcc part 2 shared core C compiler
-build_gcc2
-
-# Build Embedded GLIBC
-build_eglibc
-
-# Build gcc part 3
-build_gcc3
+# Build gcc 
+build_gcc
 
 # Build ncurses
 build_ncurses
@@ -161,24 +147,10 @@ build_gdb
 # Build pkgconf
 build_pkgconf
 
-# remove temporrery links
-package_manager_dellinks
-
-# Stripping all toolchain executables
-strip_bin
 
 # Cleanup build directory and install tool-chains
 finish_build
 
-echo ""
-echo "ARM Linux Cross-Toolchain for Mac OS X was build successfully."
-echo "You can find them in: "
-echo "   '${glb_prefix}'"
-echo 
-echo "You will also find a compressed archive of the tool-chains in your build directory."
-echo ""
-echo "Have fun with it!" 
-echo
-echo "Please report bugs to:"
-echo "   '$BUGURL'"
-echo 
+
+# Print default end screen
+print_end_screen

@@ -1,0 +1,28 @@
+diff -Naru a/usr/include/arm-linux-gnueabihf/sys/types.h b/usr/include/arm-linux-gnueabihf/sys/types.h
+--- a/usr/include/arm-linux-gnueabihf/sys/types.h	2012-05-02 00:50:01.170387474 -0700
++++ b/usr/include/arm-linux-gnueabihf/sys/types.h	2012-05-02 00:51:33.298236651 -0700
+@@ -114,7 +114,10 @@
+ #ifdef	__USE_BSD
+ # ifndef __daddr_t_defined
+ typedef __daddr_t daddr_t;
++#  if ! defined(caddr_t) && ! defined(__caddr_t_defined)
+ typedef __caddr_t caddr_t;
++#   define __caddr_t_defined
++#  endif
+ #  define __daddr_t_defined
+ # endif
+ #endif
+diff -Naru a/usr/include/rpc/types.h b/usr/include/rpc/types.h
+--- a/usr/include/rpc/types.h	2012-05-02 00:50:01.238136216 -0700
++++ b/usr/include/rpc/types.h	2012-05-02 00:52:13.370235373 -0700
+@@ -81,7 +81,10 @@
+ #endif
+ #ifndef __daddr_t_defined
+ typedef __daddr_t daddr_t;
++# if ! defined(caddr_t) && ! defined(__caddr_t_defined)
+ typedef __caddr_t caddr_t;
++#  define __caddr_t_defined
++# endif
+ # define __daddr_t_defined
+ #endif
+ 
