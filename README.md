@@ -11,7 +11,15 @@ Just run the script in the top level directory of the repo
 
 `$ ./build-arm-toolchain.sh`
 
-Aafter the build script was successful executed, ARM Linux Cross-Toolchain are placed in `/usr/local/gcc-arm-linux-gnueabihf`.
+For Raspbian run:
+
+`$ ./build-arm-toolchain.sh raspbian`
+
+
+After the script has been executed successfully, ARM Linux Cross-Toolchain are placed in:
+
+- `/usr/local/gcc-arm-linux-gnueabihf` (default).
+- `/usr/local/gcc-arm-linux-gnueabihf-raspbian` (raspbian).
 
 
 <b>Dependencies:</b>
@@ -21,8 +29,13 @@ Aafter the build script was successful executed, ARM Linux Cross-Toolchain are p
 *Dependency will be installed automatically*
 
 
+<b>Toolchain Binaries</b>
+
+The pre-built version of this tool chains can be downloaded [here](http://www.welzels.de/blog/downloads/?category=13)
+
+
 <b>Features:</b>
 - GNU Binutils
 - GNU Compiler Collection C/C++ and Fortran
-- GDB GNU Project Debugger
+- GNU Project Debugger GDB
 - pkg-config

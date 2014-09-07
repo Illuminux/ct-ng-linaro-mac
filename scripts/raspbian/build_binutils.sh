@@ -6,12 +6,7 @@
 #
 
 ##
-## Default build for binutils
-##
-## @note 
-## This script ist placed in default directory.
-## If you would like to edit this script for a specific target, 
-## copy the script into the target directory and edit it there.
+## Rapbian build for binutils
 ##
 
 
@@ -48,6 +43,7 @@ build_binutils(){
 		"--enable-ld=default"
 		"--enable-gold=yes"
 		"--enable-threads"
+		"--enable-plugins"
 		"--with-float=hard"
 		"--with-sysroot=${glb_sysroot_path}/libc"
 		"--with-pkgversion=${glb_build_version}"

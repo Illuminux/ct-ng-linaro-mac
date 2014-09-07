@@ -156,7 +156,7 @@ create_dir_structure(){
 		rm -rf ${glb_prefix}
 	fi
 	
-	mkdir -p ${glb_prefix}/arm-linux-gnueabihf || error_mkdir
+	mkdir -p "${glb_prefix}/${glb_target}" || error_mkdir
 	
 	print_log "done" 
 	
@@ -391,21 +391,29 @@ finish_build(){
 	cd $BASEPATH
 	
 	
+	## Name of the build
+	if [ "${build_target}" == "raspbian" ]; then
+		install_name="gcc-${glb_target}-raspbian"
+	else
+		install_name="gcc-${glb_target}"
+	fi
+	
+	
 	while true; do
 		read -p "Install tool-chains now? [Y/n] " Yn
 		Yn=${Yn:-Y}
 		case $Yn in
 			[Yy]* ) \
 				print_log -n "Install tool-chains... "
-				mv "./${glb_build_name}" "./gcc-${glb_target}" || warning_mv
+				mv "./${glb_build_name}" "./${install_name}" || warning_mv
 				
-				if ! [ -d "/usr/local/gcc-${glb_target}" ]; then 
-					mv "gcc-${glb_target}" "/usr/local/"
-					glb_prefix="/usr/local/gcc-${glb_target}" || warning_mv
+				if ! [ -d "/usr/local/${install_name}" ]; then 
+					mv "./${install_name}" "/usr/local/"
+					glb_prefix="/usr/local/${install_name}" || warning_mv
 					print_log "done"
 				else
-					glb_prefix="${BASEPATH}/gcc-${glb_target}"
-					print_log "faild - /usr/local/gcc-${glb_target} already exists!"
+					glb_prefix="${BASEPATH}/${install_name}"
+					print_log "faild - /usr/local/${install_name} already exists!"
 				fi
 				break;;
 			[Nn]* ) break;;

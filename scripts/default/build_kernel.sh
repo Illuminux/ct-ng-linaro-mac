@@ -13,6 +13,15 @@ package_kernel=(
 	"6540f9b81b630c91c81f277bcad6fd54"
 )
 
+##
+## Default build for kernel
+##
+## @note 
+## This script ist placed in default directory.
+## If you would like to edit this script for a specific target, 
+## copy the script into the target directory and edit it there.
+##
+
 
 ##
 ## Build Linux Kernel Source and Headers
@@ -38,7 +47,7 @@ build_kernel(){
 		-C "${glb_disk_image_path}/${name}" \
 		O="${glb_disk_image_path}/${name}/build" \
 		ARCH=arm \
-		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
+		INSTALL_HDR_PATH="${glb_prefix}/${glb_target}/libc/usr" \
 		V=1 \
 		headers_install > "${glb_log_path}/${name}.log" 2>&1 || error_make
 
@@ -51,7 +60,7 @@ build_kernel(){
 		-C "${glb_disk_image_path}/${name}" \
 		O="${glb_disk_image_path}/${name}/build" \
 		ARCH=arm \
-		INSTALL_HDR_PATH="${glb_prefix}/arm-linux-gnueabihf/libc/usr" \
+		INSTALL_HDR_PATH="${glb_prefix}/${glb_target}/libc/usr" \
 		V=1 \
 		headers_check >> "${glb_log_path}/${name}.log" 2>&1 || error_make
 	

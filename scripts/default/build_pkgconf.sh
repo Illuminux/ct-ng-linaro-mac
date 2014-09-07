@@ -5,6 +5,15 @@
 # Copyright (C) 2014  Knut Welzel
 #
 
+##
+## Default build for pkgconf
+##
+## @note 
+## This script ist placed in default directory.
+## If you would like to edit this script for a specific target, 
+## copy the script into the target directory and edit it there.
+##
+
 
 package_pkgconf=(
 	"pkg-config-0.25"
@@ -31,7 +40,7 @@ build_pkgconf(){
 		"--host=${glb_build}"
 		"--program-prefix=${glb_target}-"
 		"--program-suffix=-real"
-		"--with-pc-path=${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib/arm-linux-gnueabihf/pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/lib//pkgconfig:${glb_prefix}/arm-linux-gnueabihf/libc/usr/share/pkgconfig" 
+		"--with-pc-path=${glb_prefix}/${glb_target}/libc/usr/lib/${glb_target}/pkgconfig:${glb_prefix}/${glb_target}/libc/usr/lib/pkgconfig:${glb_prefix}/${glb_target}/libc/usr/share/pkgconfig" 
 	)
 	
 	# build in dir
@@ -42,7 +51,7 @@ build_pkgconf(){
 	
 	cp -a \
 		"${BASEPATH}/scripts/pkg-config-wrapper" \
-		"${glb_prefix}/bin/arm-linux-gnueabihf-pkg-config"
+		"${glb_prefix}/bin/${glb_target}-pkg-config"
 	
 	unset CC
 	unset build_args

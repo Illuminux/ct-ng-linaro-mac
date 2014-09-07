@@ -6,12 +6,7 @@
 #
 
 ##
-## Default build for gcc
-##
-## @note 
-## This script ist placed in default directory.
-## If you would like to edit this script for a specific target, 
-## copy the script into the target directory and edit it there.
+## Rapbian build for gcc
 ##
 
 
@@ -34,7 +29,7 @@ build_gcc(){
 	export CC_FOR_BUILD=$glb_cc
 	export CFLAGS="-O2 -g -pipe -fno-stack-protector -U_FORTIFY_SOURCE"
 	export LDFLAGS="-lstdc++ -lm"
-	export CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv7-a -mtune=cortex-a9 -mfpu=vfpv3-d16 -mhard-float -g -O2"
+	export CXXFLAGS_FOR_TARGET="-mlittle-endian -march=armv6 -mtune=arm1176jz-s -mfpu=vfp -mhard-float -g -O2"
 	export LDFLAGS_FOR_TARGET="-Wl,-EL"
 	
 	# configure args
@@ -45,10 +40,11 @@ build_gcc(){
 		"--prefix=${glb_prefix}"
 		"--with-sysroot=${glb_sysroot_path}/libc"
 		"--enable-languages=c,c++,fortran"
-		"--enable-multilib"
-		"--with-arch=armv7-a"
-		"--with-tune=cortex-a9"
-		"--with-fpu=vfpv3-d16"
+		"--disable-multilib"
+		"--enable-multiarch"
+		"--with-arch=armv6"
+		"--with-tune=arm1176jz-s"
+		"--with-fpu=vfp"
 		"--with-float=hard"
 		"--enable-__cxa_atexit"
 		"--enable-libmudflap"
@@ -63,11 +59,11 @@ build_gcc(){
 		"--enable-threads=posix"
 		"--disable-libstdcxx-pch"
 		"--enable-linker-build-id"
+		"--enable-plugin"
 		"--enable-gold"
 		"--with-local-prefix=${glb_prefix}/${glb_target}/libc"
 		"--enable-c99"
 		"--enable-long-long"
-		"--with-mode=thumb"
 		"--with-float=hard"
 		"--with-pkgversion=${glb_build_version}"
 		"--with-bugurl=${glb_bug_url}"

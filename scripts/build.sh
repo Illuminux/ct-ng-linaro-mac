@@ -9,46 +9,46 @@ build_args=()
 
 
 # Load build script for gmp
-source "${BASEPATH}/scripts/default/build_gmp.sh"
+source "${BASEPATH}/scripts/${build_target}/build_gmp.sh"
 
 # Load build script for mpfr
-source "${BASEPATH}/scripts/default/build_mpfr.sh"
+source "${BASEPATH}/scripts/${build_target}/build_mpfr.sh"
 
 # Load build script for isl
-source "${BASEPATH}/scripts/default/build_isl.sh"
+source "${BASEPATH}/scripts/${build_target}/build_isl.sh"
 
 # Load build script for cloog
-source "${BASEPATH}/scripts/default/build_cloog.sh"
+source "${BASEPATH}/scripts/${build_target}/build_cloog.sh"
 
 # Load build script for mpc
-source "${BASEPATH}/scripts/default/build_mpc.sh"
+source "${BASEPATH}/scripts/${build_target}/build_mpc.sh"
 
 # Load build script for zlib
-source "${BASEPATH}/scripts/default/build_zlib.sh"
+source "${BASEPATH}/scripts/${build_target}/build_zlib.sh"
 
 # Load build script for binutils
-source "${BASEPATH}/scripts/default/build_binutils.sh"
+source "${BASEPATH}/scripts/${build_target}/build_binutils.sh"
 
 # Load build script for kernel
-source "${BASEPATH}/scripts/default/build_kernel.sh"
+source "${BASEPATH}/scripts/${build_target}/build_kernel.sh"
 
 # Load build script for sysroot
-source "${BASEPATH}/scripts/default/build_sysroot.sh"
+source "${BASEPATH}/scripts/${build_target}/build_sysroot.sh"
 
 # Load build script for gcc
-source "${BASEPATH}/scripts/default/build_gcc.sh"
+source "${BASEPATH}/scripts/${build_target}/build_gcc.sh"
 
 # Load build script for ncurses
-source "${BASEPATH}/scripts/default/build_ncurses.sh"
+source "${BASEPATH}/scripts/${build_target}/build_ncurses.sh"
 
 # Load build script for expat
-source "${BASEPATH}/scripts/default/build_expat.sh"
+source "${BASEPATH}/scripts/${build_target}/build_expat.sh"
 
 # Load build script for gdb
-source "${BASEPATH}/scripts/default/build_gdb.sh"
+source "${BASEPATH}/scripts/${build_target}/build_gdb.sh"
 
 # Load build script for pkgconf
-source "${BASEPATH}/scripts/default/build_pkgconf.sh"
+source "${BASEPATH}/scripts/${build_target}/build_pkgconf.sh"
 
 
 

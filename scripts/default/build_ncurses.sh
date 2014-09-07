@@ -5,6 +5,15 @@
 # Copyright (C) 2014  Knut Welzel
 #
 
+##
+## Default build for ncurses
+##
+## @note 
+## This script ist placed in default directory.
+## If you would like to edit this script for a specific target, 
+## copy the script into the target directory and edit it there.
+##
+
 
 package_ncurses=(
 	"ncurses-5.9"

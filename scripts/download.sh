@@ -127,10 +127,14 @@ extract_archive(){
 		print_log "done"
 			
 		print_log -n "Extracting ${archive}... "
+		
+		mkdir -p "${destination}/${name}"
 		tar \
-			xf "${glb_download_path}/${archive}" \
-			-C "${destination}" \
-			>/dev/null 2>&1 || error_tar
+			--extract \
+			--file="${glb_download_path}/${archive}" \
+			--strip-components=1 \
+			--directory="${destination}/${name}"
+		
 		print_log "done"
 	fi
 }

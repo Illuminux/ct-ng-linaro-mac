@@ -6,20 +6,15 @@
 #
 
 ##
-## Default build for sysroot
-##
-## @note 
-## This script ist placed in default directory.
-## If you would like to edit this script for a specific target, 
-## copy the script into the target directory and edit it there.
+## Rapbian build for sysroot
 ##
 
 
 package_sysroot=(
-	"linaro-prebuilt-sysroot-2013.10"
+	"raspbian-sysroot-armhf-0+bzr2449"
 	".tar.bz2"
-	"https://launchpad.net/linaro-toolchain-binaries/support/01/+download/linaro-prebuilt-sysroot-2013.10.tar.bz2"
-	"aed7eb9e886f84fc84663d6e13e2b31d"
+	"http://launchpad.net/linaro-toolchain-binaries/support/01/+download/raspbian-sysroot-armhf-0+bzr2449.tar.bz2"
+	"bb5674a44f5a11fb07d3d7c3f08e8d55"
 )
 
 
@@ -37,13 +32,11 @@ build_sysroot(){
 	if ! [ -d "${glb_prefix}/${glb_target}/libc" ]; then
 		mkdir -p "${glb_prefix}/${glb_target}/libc" || error_mkdir
 	fi
-
+	
 	cp -a \
-		"${glb_source_path}/${name}/etc" \
 		"${glb_source_path}/${name}/lib" \
 		"${glb_source_path}/${name}/sbin" \
 		"${glb_source_path}/${name}/usr" \
-		"${glb_source_path}/${name}/var" \
 		"${glb_sysroot_path}/libc" || error_copy
 	
 	print_log "done"

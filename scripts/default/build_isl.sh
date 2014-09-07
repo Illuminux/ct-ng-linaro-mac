@@ -5,6 +5,15 @@
 # Copyright (C) 2014  Knut Welzel
 #
 
+##
+## Default build for isl
+##
+## @note 
+## This script ist placed in default directory.
+## If you would like to edit this script for a specific target, 
+## copy the script into the target directory and edit it there.
+##
+
 
 package_isl=(
 	"isl-0.11.1"

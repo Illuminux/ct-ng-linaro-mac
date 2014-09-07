@@ -34,23 +34,28 @@ if [ "$(uname -s)" != "Darwin" ]; then
 	exit 0
 fi
 
-	
+
+# Catch selectet target from command line parameter
 if [ "$#" -eq 0 ]; then
 	build_target="default"
 else
 	# Select the build target
 	case $1 in
 
-		default) 
-			build_target="default"
-			;;
+		default) build_target="default";;
 			
-		raspian) 
-			build_target="raspian"
-			;;
+		raspbian) build_target="raspbian";;
 
 		*) 
-			echo "Usage"; exit 0
+			echo "Usage:"
+			echo "$0 [OPTION]"
+			echo 
+			echo "Option:"
+			echo "  default:  Default arm cross compiler cortex-a9 (eg. BeagleBone Black)."
+			echo "            Can be left blank it is the default build."
+			echo "  raspbian: Raspberry PI ARMv6 Raspbian build."
+			echo
+			exit 0
 			;;
 	esac
 fi
