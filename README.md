@@ -31,7 +31,7 @@ After the script has been executed successfully, ARM Linux Cross-Toolchain are p
 
 <b>Toolchain Binaries</b>
 
-The pre-built version of this tool chains can be downloaded [here](http://www.welzels.de/blog/downloads/?category=13)
+The pre-built version of this tool chains can be downloaded [here](http://www.welzels.de/blog/downloads/?category=13).
 
 
 <b>Features:</b>

@@ -50,10 +50,10 @@ else
 			echo "Usage:"
 			echo "$0 [OPTION]"
 			echo 
-			echo "Option:"
-			echo "  default:  Default arm cross compiler cortex-a9 (eg. BeagleBone Black)."
+			echo "Options:"
+			echo "  default   Default arm cross compiler cortex-a9 (eg. BeagleBone Black)."
 			echo "            Can be left blank it is the default build."
-			echo "  raspbian: Raspberry PI ARMv6 Raspbian build."
+			echo "  raspbian  Raspberry PI ARMv6 Raspbian build."
 			echo
 			exit 0
 			;;

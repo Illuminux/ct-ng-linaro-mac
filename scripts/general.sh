@@ -341,8 +341,10 @@ finish_build(){
 	
 	FILES="${glb_log_path}/*.log"
 	for f in $FILES; do
-		zip -X "${f}.zip" $f >/dev/null 2>&1
-		rm -f $f >/dev/null 2>&1
+		if [ "${f}" != ${glb_build_log} ]; then
+			zip -X "${f}.zip" $f >/dev/null 2>&1
+			rm -f $f >/dev/null 2>&1
+		fi
 	done
 	
 	print_log "done"
