@@ -3,24 +3,10 @@
 *.tar.bz2
 *.tar.xz
 *.zip
-
-*.so
-*.so.*
-
 *.dmg
 *.sparseimage
 
-gcc-arm-linux-gnueabihf/
-gcc-*-linux-gnueabihf-*/
+.DS_Store
 
-linux-kernel-sources/
-
-download/
-
-install/
-
-build/
-
-src/
-
-log/
+/crosstool-ng
+/crosstool-ng-linaro
