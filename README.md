@@ -1,33 +1,25 @@
 ARM Linux Cross-Toolchain for Mac OS X
 ======================================
 
-This is just a set of scripts to build ARM Linux Cross-Toolchain on and for Mac OS X, based on Linaro arm-linux-gnueabihf source.
+This script allows to build the Linaro ARM Linux Cross-Toolchain on Mac OS X. 
 
-This git repo contains just scripts and patches to build the arm-linux-gnueabihf toolchain. 
-The kernel source, GCC, Binutils and all other needed stuff will be downloaded when you run the build script.
+Base is the release 1.13.1 GCC 4.8 (2014.01)
 
 Build ARM Linux Cross-Toolchain:
 Just run the script in the top level directory of the repo
 
-`$ ./build-arm-toolchain.sh`
+`$ ./build.sh [Sample]`
 
-For Raspbian run:
+Supported Samples:
 
-`$ ./build-arm-toolchain.sh raspbian`
-
-
-After the script has been executed successfully, ARM Linux Cross-Toolchain are placed in:
-
-- `/usr/local/gcc-arm-linux-gnueabihf` (default).
-- `/usr/local/gcc-arm-linux-gnueabihf-raspbian` (raspbian).
-
+- linaro-arm-linux-gnueabi 
+- linaro-arm-linux-gnueabihf (eg. BeagleBone Black)
+- linaro-arm-linux-gnueabihf-raspbian (eg. Raspberry Pi A/B)
 
 <b>Dependencies:</b>
+
 - [Xcode Command Line Tools](https://developer.apple.com/xcode/)
-- [Homebrew](https://github.com/Homebrew/homebrew)
-
-*Dependency will be installed automatically*
-
+- [Homebrew](https://github.com/Homebrew/homebrew) <br>*Dependency will be installed automatically*
 
 <b>Toolchain Binaries</b>
 
@@ -35,6 +27,7 @@ The pre-built version of this tool chains can be downloaded [here](http://www.we
 
 
 <b>Features:</b>
+
 - GNU Binutils
 - GNU Compiler Collection C/C++ and Fortran
 - GNU Project Debugger GDB
