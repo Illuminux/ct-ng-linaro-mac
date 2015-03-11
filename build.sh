@@ -27,10 +27,11 @@ BASEDIR=$(pwd)
 
 # Lenaro release
 RELEASE_VERSION="1.13.1"
-RELEASE_DATE="14.01"
+RELEASE_DATE="14.02"
 RELEASE_GCC="4.8"
 RELEASE_URL="https://releases.linaro.org/${RELEASE_DATE}/components/toolchain/binaries/crosstool-ng-linaro-${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}.tar.bz2"
 VERSION="${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}"
+
 
 # Test if Homebrew is installed 
 # If it is not installed print message and abort
@@ -78,7 +79,6 @@ SAMPLES=(
 	"linaro-arm-linux-gnueabi"
 	"linaro-arm-linux-gnueabihf"
 	"linaro-arm-linux-gnueabihf-raspbian"
-	"linaro-arm-none-eabi"
 )
 
 
@@ -229,27 +229,27 @@ DARWIN_DUMP=$(gcc -dumpmachine)
 BREW_DUMP=$(gcc-4.8 -dumpmachine)
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-c++" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-c++-4.8 /usr/local/bin/${DARWIN_DUMP}-c++
-	echo "/usr/local/bin/${DARWIN_DUMP}-c++" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-c++" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-g++" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-g++-4.8 /usr/local/bin/${DARWIN_DUMP}-g++
-	echo "/usr/local/bin/${DARWIN_DUMP}-g++" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-g++" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-gcc-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc
-	echo "/usr/local/bin/${DARWIN_DUMP}-gcc" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-ar" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ar-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-ar
-	echo "/usr/local/bin/${DARWIN_DUMP}-gcc-ar" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-ar" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-nm" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-gcc-nm-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-nm
-	echo "/usr/local/bin/${DARWIN_DUMP}-gcc-nm" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-nm" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-ranlib" ]; then
 	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ranlib-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-ranlib
-	echo "/usr/local/bin/${DARWIN_DUMP}-gcc-ranlib" >> "${BASEDIR}/dellinks.sh"
+	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-ranlib" >> "${BASEDIR}/dellinks.sh"
 fi
 
 
