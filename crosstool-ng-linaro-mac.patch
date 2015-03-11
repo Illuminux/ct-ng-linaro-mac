@@ -1,12 +1,12 @@
-diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
---- crosstool-ng-linaro_ori/configure	2014-04-16 16:41:03.000000000 +0200
-+++ crosstool-ng-linaro/configure	2015-03-10 11:55:03.000000000 +0100
+diff -rupN crosstool-ng-linaro-1.13.1-4.9-2014.05/configure crosstool-ng-linaro/configure
+--- crosstool-ng-linaro-1.13.1-4.9-2014.05/configure	2014-05-23 16:12:19.000000000 +0200
++++ crosstool-ng-linaro/configure	2015-03-11 19:31:11.000000000 +0100
 @@ -215,7 +215,7 @@ check_for() {
      if [ -n "${inc}" ]; then
          for item in ${inc}; do
              printf "Checking for '${item}'... "
 -            if printf "#include \"${item}\"" |gcc -x c -c - -o /dev/null >/dev/null 2>&1; then
-+            if printf "#include \"${item}\"" |gcc-4.9 -x c -c - -o /dev/null >/dev/null 2>&1; then
++            if printf "#include \"${item}\"" |gcc-4.8 -x c -c - -o /dev/null >/dev/null 2>&1; then
                  where="${item}"
                  status=yes
                  break;
@@ -15,7 +15,7 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
              for ext in ${lib_exts}; do
                  printf "Checking for '${item}.${ext}'... "
 -                where="$( gcc -print-file-name="${item}.${ext}" )"
-+                where="$( gcc-4.9 -print-file-name="${item}.${ext}" )"
++                where="$( gcc-4.8 -print-file-name="${item}.${ext}" )"
                  if [ "${where}" != "${item}.${ext}" ]; then
                      where="$( readlink "${where}" )"
                      status=yes
@@ -24,7 +24,7 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
               ver='^GNU Make (3.[89][[:digit:]]|[4-9])'  \
               err="GNU 'make' 3.80 or above was not found"
 -has_or_abort prog=gcc
-+has_or_abort prog=gcc-4.9
++has_or_abort prog=gcc-4.8
  has_or_abort prog="awk gawk" ver='^GNU Awk' err="GNU 'awk' was not found"
  has_or_abort prog=bison
  has_or_abort prog=flex
@@ -37,9 +37,41 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
  ncurses_libs="libncursesw libncurses libcurses"
  has_or_abort lib="${ncurses_libs}"                                          \
               lib_exts="${libs_exts}"                                        \
-diff -rupN crosstool-ng-linaro_ori/contrib/linaro/patches/ncurses/5.9/darwin.patch crosstool-ng-linaro/contrib/linaro/patches/ncurses/5.9/darwin.patch
---- crosstool-ng-linaro_ori/contrib/linaro/patches/ncurses/5.9/darwin.patch	1970-01-01 01:00:00.000000000 +0100
-+++ crosstool-ng-linaro/contrib/linaro/patches/ncurses/5.9/darwin.patch	2015-03-09 21:57:46.000000000 +0100
+diff -rupN crosstool-ng-linaro-1.13.1-4.9-2014.05/contrib/linaro/patches/eglibc/linaro-2.19-2014.05/911-darwin.patch crosstool-ng-linaro/contrib/linaro/patches/eglibc/linaro-2.19-2014.05/911-darwin.patch
+--- crosstool-ng-linaro-1.13.1-4.9-2014.05/contrib/linaro/patches/eglibc/linaro-2.19-2014.05/911-darwin.patch	1970-01-01 01:00:00.000000000 +0100
++++ crosstool-ng-linaro/contrib/linaro/patches/eglibc/linaro-2.19-2014.05/911-darwin.patch	2015-03-11 19:29:19.000000000 +0100
+@@ -0,0 +1,28 @@
++diff -rupN eglibc-linaro-2.19-2014.05-ori/sunrpc/Makefile eglibc-linaro-2.19-2014.05-new/sunrpc/Makefile
++--- eglibc-linaro-2.19-2014.05-ori/sunrpc/Makefile	2014-04-30 11:55:47.000000000 +0200
+++++ eglibc-linaro-2.19-2014.05-new/sunrpc/Makefile	2015-03-11 19:26:46.000000000 +0100
++@@ -180,7 +180,7 @@ $(cross-rpcgen-objs): $(objpfx)cross-%.o
++ 		$(OUTPUT_OPTION) $(native-compile-mkdep-flags) -c
++ 
++ $(objpfx)cross-rpcgen: $(cross-rpcgen-objs)
++-	$(BUILD_CC) $^ $(BUILD_LDFLAGS) -o $@
+++	$(BUILD_CC) $^ $(BUILD_LDFLAGS) -o $@ -L/usr/local/lib -lintl
++ 
++ # This makes sure -DNOT_IN_libc is passed for all these modules.
++ cpp-srcs-left := $(rpcgen-objs:.o=.c)
++diff -rupN eglibc-linaro-2.19-2014.05-ori/sunrpc/rpc/types.h eglibc-linaro-2.19-2014.05-new/sunrpc/rpc/types.h
++--- eglibc-linaro-2.19-2014.05-ori/sunrpc/rpc/types.h	2014-04-30 11:55:47.000000000 +0200
+++++ eglibc-linaro-2.19-2014.05-new/sunrpc/rpc/types.h	2015-03-11 19:26:00.000000000 +0100
++@@ -69,10 +69,8 @@ typedef unsigned long rpcport_t;
++ #include <sys/types.h>
++ #endif
++ 
++-#if defined __APPLE_CC__ || defined __FreeBSD__
++-# define __u_char_defined
++-# define __daddr_t_defined
++-#endif
+++#define __u_char_defined
+++#define __daddr_t_defined
++ 
++ #ifndef __u_char_defined
++ typedef __u_char u_char;
+diff -rupN crosstool-ng-linaro-1.13.1-4.9-2014.05/contrib/linaro/patches/ncurses/5.9/darwin.patch crosstool-ng-linaro/contrib/linaro/patches/ncurses/5.9/darwin.patch
+--- crosstool-ng-linaro-1.13.1-4.9-2014.05/contrib/linaro/patches/ncurses/5.9/darwin.patch	1970-01-01 01:00:00.000000000 +0100
++++ crosstool-ng-linaro/contrib/linaro/patches/ncurses/5.9/darwin.patch	2015-03-11 19:31:11.000000000 +0100
 @@ -0,0 +1,12 @@
 +diff -u ncurses-5.9-ori/configure ncurses-5.9/configure
 +--- ncurses-5.9-ori/configure	2011-04-01 01:35:51.000000000 +0200
@@ -53,9 +85,9 @@ diff -rupN crosstool-ng-linaro_ori/contrib/linaro/patches/ncurses/5.9/darwin.pat
 + 		CC_SHARED_OPTS="-dynamic"
 + 		MK_SHARED_LIB='${CC} ${CFLAGS} -dynamiclib -install_name ${libdir}/`basename $@` -compatibility_version ${ABI_VERSION} -current_version ${ABI_VERSION} -o $@'
 + 		test "$cf_cv_shlib_version" = auto && cf_cv_shlib_version=abi
-diff -rupN crosstool-ng-linaro_ori/scripts/functions crosstool-ng-linaro/scripts/functions
---- crosstool-ng-linaro_ori/scripts/functions	2014-04-16 16:41:03.000000000 +0200
-+++ crosstool-ng-linaro/scripts/functions	2015-03-09 21:47:01.000000000 +0100
+diff -rupN crosstool-ng-linaro-1.13.1-4.9-2014.05/scripts/functions crosstool-ng-linaro/scripts/functions
+--- crosstool-ng-linaro-1.13.1-4.9-2014.05/scripts/functions	2014-05-23 16:12:19.000000000 +0200
++++ crosstool-ng-linaro/scripts/functions	2015-03-11 19:31:11.000000000 +0100
 @@ -777,7 +777,7 @@ CT_Extract() {
          lzma_prog=xz
      fi
