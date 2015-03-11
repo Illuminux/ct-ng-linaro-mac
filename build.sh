@@ -27,7 +27,7 @@ BASEDIR=$(pwd)
 
 # Lenaro release
 RELEASE_VERSION="1.13.1"
-RELEASE_DATE="14.02"
+RELEASE_DATE="14.03"
 RELEASE_GCC="4.8"
 RELEASE_URL="https://releases.linaro.org/${RELEASE_DATE}/components/toolchain/binaries/crosstool-ng-linaro-${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}.tar.bz2"
 VERSION="${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}"
@@ -147,7 +147,6 @@ done
 # default only the 64bit version will installed.
 echo -n "Checking for 'ncurses'... "
 if [ $(brew list | grep -c ncurses) = 0 ]; then
-	echo
 	brew tap homebrew/dupes
 	brew install ncurses --universal
 	brew link ncurses --force
