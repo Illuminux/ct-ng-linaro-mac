@@ -27,7 +27,7 @@ BASEDIR=$(pwd)
 
 # Lenaro release
 RELEASE_VERSION="1.13.1"
-RELEASE_DATE="14.03"
+RELEASE_DATE="14.04"
 RELEASE_GCC="4.8"
 RELEASE_URL="https://releases.linaro.org/${RELEASE_DATE}/components/toolchain/binaries/crosstool-ng-linaro-${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}.tar.bz2"
 VERSION="${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}"
@@ -175,7 +175,6 @@ fi
 # default only the 64bit version will installed.
 echo -n "Checking for 'gettext'... "
 if [ $(brew list | grep -c gettext) = 0 ]; then
-	echo
 	brew install gettext --universal
 	brew link gettext --force
 else 

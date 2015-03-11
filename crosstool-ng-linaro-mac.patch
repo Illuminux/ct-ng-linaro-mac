@@ -6,7 +6,7 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
          for item in ${inc}; do
              printf "Checking for '${item}'... "
 -            if printf "#include \"${item}\"" |gcc -x c -c - -o /dev/null >/dev/null 2>&1; then
-+            if printf "#include \"${item}\"" |gcc-4.8 -x c -c - -o /dev/null >/dev/null 2>&1; then
++            if printf "#include \"${item}\"" |gcc-4.9 -x c -c - -o /dev/null >/dev/null 2>&1; then
                  where="${item}"
                  status=yes
                  break;
@@ -15,7 +15,7 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
              for ext in ${lib_exts}; do
                  printf "Checking for '${item}.${ext}'... "
 -                where="$( gcc -print-file-name="${item}.${ext}" )"
-+                where="$( gcc-4.8 -print-file-name="${item}.${ext}" )"
++                where="$( gcc-4.9 -print-file-name="${item}.${ext}" )"
                  if [ "${where}" != "${item}.${ext}" ]; then
                      where="$( readlink "${where}" )"
                      status=yes
@@ -24,7 +24,7 @@ diff -rupN crosstool-ng-linaro_ori/configure crosstool-ng-linaro/configure
               ver='^GNU Make (3.[89][[:digit:]]|[4-9])'  \
               err="GNU 'make' 3.80 or above was not found"
 -has_or_abort prog=gcc
-+has_or_abort prog=gcc-4.8
++has_or_abort prog=gcc-4.9
  has_or_abort prog="awk gawk" ver='^GNU Awk' err="GNU 'awk' was not found"
  has_or_abort prog=bison
  has_or_abort prog=flex
