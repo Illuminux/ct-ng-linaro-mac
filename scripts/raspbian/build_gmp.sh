@@ -1,1 +1,0 @@
-../default/build_gmp.sh
