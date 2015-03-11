@@ -20,15 +20,22 @@
 # 
 
 # Abort on error
-set -e
+#set -e
 
 # Setup the base dir
 BASEDIR=$(pwd)
 
+error() {
+	echo "*** ERROR ***"
+	source "${BASEDIR}/dellinks.sh"
+	hdiutil detach "${BASEDIR}/crosstool-ng"
+	exit 1
+}
+
 # Lenaro release
 RELEASE_VERSION="1.13.1"
-RELEASE_DATE="14.04"
-RELEASE_GCC="4.8"
+RELEASE_DATE="14.05"
+RELEASE_GCC="4.9"
 RELEASE_URL="https://releases.linaro.org/${RELEASE_DATE}/components/toolchain/binaries/crosstool-ng-linaro-${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}.tar.bz2"
 VERSION="${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}"
 
@@ -69,11 +76,6 @@ if ! hash "Xorg" 2>/dev/null; then
 fi
 
 
-# Create file to remove the links
-echo "#!/bin/bash" > "${BASEDIR}/dellinks.sh"
-chmod +x "${BASEDIR}/dellinks.sh"
-
-
 # Samples that can be created with this script
 SAMPLES=(
 	"linaro-arm-linux-gnueabi"
@@ -110,6 +112,12 @@ if [ "${SAMPLE}" == false ]; then
 	exit 1
 fi
 
+
+# Create file to remove the links
+echo "#!/bin/bash" > "${BASEDIR}/dellinks.sh"
+chmod +x "${BASEDIR}/dellinks.sh" 
+
+
 # Required homebrew packages
 REQUIRES=(
 	"automake"
@@ -135,7 +143,7 @@ for REQUIRE in "${REQUIRES[@]}"
 do
 	echo -n "Checking for '$REQUIRE'... "
 	if [ $(brew list | grep -c $REQUIRE) = 0 ]; then
-		brew install $REQUIRE
+		brew install $REQUIRE 2>&1 || error
 	else 
 		echo "yes"
 	fi
@@ -147,23 +155,24 @@ done
 # default only the 64bit version will installed.
 echo -n "Checking for 'ncurses'... "
 if [ $(brew list | grep -c ncurses) = 0 ]; then
-	brew tap homebrew/dupes
-	brew install ncurses --universal
-	brew link ncurses --force
+	echo
+	brew tap homebrew/dupes 2>&1 || error
+	brew install ncurses --universal 2>&1 || error
+	brew link ncurses --force 2>&1 || error
 else 
 	echo "yes"
 	echo -n "Checking for 'ibncurses.dylib'... "
 	if ! [ "/usr/local/lib/libncurses.dylib" ]; then
 		echo "no"
-		brew link ncurses --force
+		brew link ncurses --force 2>&1 || error
 	else
 		echo "yes"
 	fi
 	
 	echo -n "Checking for 'libncurses' support for architecture i386... "
 	if [ $(file /usr/local/lib/libncurses.dylib | grep -c i386) == 0 ]; then
-		brew reinstall ncurses --universal
-		brew link ncurses --force
+		brew reinstall ncurses --universal 2>&1 || error
+		brew link ncurses --force 2>&1 || error
 	else
 		echo "yes"
 	fi
@@ -175,34 +184,35 @@ fi
 # default only the 64bit version will installed.
 echo -n "Checking for 'gettext'... "
 if [ $(brew list | grep -c gettext) = 0 ]; then
-	brew install gettext --universal
-	brew link gettext --force
+	echo
+	brew install gettext --universal 2>&1 || error
+	brew link gettext --force 2>&1 || error
 else 
 	echo "yes"
 	echo -n "Checking for 'libgettextlib.dylib'... "
 	if ! [ "/usr/local/lib/libgettextlib.dylib" ]; then
 		echo "no"
-		brew link ncurses --force
+		brew link ncurses --force 2>&1 || error
 	else
 		echo "yes"
 	fi
 	
 	echo -n "Checking for 'libgettext' support for architecture i386... "
 	if [ $(file /usr/local/lib/libgettextlib.dylib | grep -c i386) == 0 ]; then
-		brew reinstall ncurses --universal
-		brew link ncurses --force
+		brew reinstall ncurses --universal 2>&1 || error
+		brew link ncurses --force 2>&1 || error
 	else
 		echo "yes"
 	fi
 fi
 
 
-# check for gcc 4.8
-echo -n "Checking for 'gcc-4.8'... "
-if ! hash "gcc-4.8" 2>/dev/null; then
+# check for gcc 4.9
+echo -n "Checking for 'gcc-4.9'... "
+if ! hash "gcc-4.9" 2>/dev/null; then
 	echo
-	brew tap homebrew/versions
-	brew install gcc48
+	brew tap homebrew/versions 2>&1 || error
+	brew install gcc49 2>&1 || error
 else
 	echo "yes"
 fi
@@ -224,29 +234,29 @@ fi
 # overwrite the Apple GCC temporary. At the end of the script we will remove 
 # thes.
 DARWIN_DUMP=$(gcc -dumpmachine)
-BREW_DUMP=$(gcc-4.8 -dumpmachine)
+BREW_DUMP=$(gcc-4.9 -dumpmachine)
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-c++" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-c++-4.8 /usr/local/bin/${DARWIN_DUMP}-c++
+	ln -s /usr/local/bin/${BREW_DUMP}-c++-4.9 /usr/local/bin/${DARWIN_DUMP}-c++
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-c++" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-g++" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-g++-4.8 /usr/local/bin/${DARWIN_DUMP}-g++
+	ln -s /usr/local/bin/${BREW_DUMP}-g++-4.9 /usr/local/bin/${DARWIN_DUMP}-g++
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-g++" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-gcc-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc
+	ln -s /usr/local/bin/${BREW_DUMP}-gcc-4.9 /usr/local/bin/${DARWIN_DUMP}-gcc
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-ar" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ar-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-ar
+	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ar-4.9 /usr/local/bin/${DARWIN_DUMP}-gcc-ar
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-ar" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-nm" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-gcc-nm-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-nm
+	ln -s /usr/local/bin/${BREW_DUMP}-gcc-nm-4.9 /usr/local/bin/${DARWIN_DUMP}-gcc-nm
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-nm" >> "${BASEDIR}/dellinks.sh"
 fi
 if ! [ -L "/usr/local/bin/${DARWIN_DUMP}-gcc-ranlib" ]; then
-	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ranlib-4.8 /usr/local/bin/${DARWIN_DUMP}-gcc-ranlib
+	ln -s /usr/local/bin/${BREW_DUMP}-gcc-ranlib-4.9 /usr/local/bin/${DARWIN_DUMP}-gcc-ranlib
 	echo "rm /usr/local/bin/${DARWIN_DUMP}-gcc-ranlib" >> "${BASEDIR}/dellinks.sh"
 fi
 
@@ -261,7 +271,7 @@ if ! [ -f "crosstool-ng.sparseimage" ]; then
 		-type SPARSE \
 		-fs JHFS+X \
 		-size 20G \
-		-volname crosstool-ng > /dev/null
+		-volname crosstool-ng > /dev/null 2>&1 || error
 	echo "done"
 fi
 
@@ -269,12 +279,15 @@ fi
 # "/Volumes" is to confusing.
 if ! [ -d "./crosstool-ng" ]; then
 	echo -n "Mount case sensitiv disc image... "
-	hdiutil attach crosstool-ng.sparseimage -mountroot ./ > /dev/null
+	hdiutil attach crosstool-ng.sparseimage -mountroot ./ > /dev/null 2>&1 || error
 	echo "done"
 fi
 
 
-# Download, patch ad install the crosstool-ng-linaro
+#
+# Her we have to download and patch the crosstool-ng-linaro
+#
+
 if ! [ -f "${BASEDIR}/version.txt" ]; then
 	echo "new" > "${BASEDIR}/version.txt"
 fi
@@ -294,26 +307,26 @@ if [ "$(cat ${BASEDIR}/version.txt)" != "${VERSION}" ]; then
 	# name without version info 
 	if [ -d "${BASEDIR}/crosstool-ng-linaro" ];then
 		echo -n "Remove previous source dir... "
-		rm -rf "${BASEDIR}/crosstool-ng-linaro"
+		rm -rf "${BASEDIR}/crosstool-ng-linaro" > /dev/null 2>&1 || error
 		echo "done"
 	fi
 	
 	echo -n "Extract crosstool-ng-linaro-${VERSION}... "
 	tar xf "crosstool-ng-linaro-${VERSION}.tar.bz2" > /dev/null
-	mv "crosstool-ng-linaro-${VERSION}" crosstool-ng-linaro > /dev/null
+	mv "crosstool-ng-linaro-${VERSION}" crosstool-ng-linaro > /dev/null 2>&1 || error
 	echo "done"
 	
 	# delete old ct-ng-linaro installation
 	if [ -d "${BASEDIR}/crosstool-ng/ct-ng-linaro" ]; then 
 		echo -n "Remove previous crosstool-ng install dir... "
-		rm -rf "${BASEDIR}/crosstool-ng/ct-ng-linaro" > /dev/null
+		rm -rf "${BASEDIR}/crosstool-ng/ct-ng-linaro" > /dev/null 2>&1 || error
 		echo "done"
 	fi
 	
 	cd ${BASEDIR}/crosstool-ng-linaro
 	
 	echo "Patching crosstool-ng-linaro for use on Mac OS X:"
-	patch -p1 < ../crosstool-ng-linaro-mac.patch
+	patch -p1 < ../crosstool-ng-linaro-mac.patch 2>&1 || error
 	
 	# Configure crosstool-ng inside the case sensitve directory. So we do not have 
 	# any configurations on the samples.
@@ -322,29 +335,32 @@ if [ "$(cat ${BASEDIR}/version.txt)" != "${VERSION}" ]; then
 		--prefix="${BASEDIR}/crosstool-ng/ct-ng-linaro" \
 		--with-sed=gsed \
 		--with-grep=ggrep \
-		--with-gcc=gcc-4.8 \
+		--with-gcc=gcc-4.9 \
 		--with-objcopy=gobjcopy \
 		--with-objdump=gobjdump \
 		--with-libtool=glibtool \
-		--with-libtoolize=glibtoolize > /dev/null
+		--with-libtoolize=glibtoolize > /dev/null 2>&1 || error
 	echo "done"
 	
 	# Make and install crosstool-ng
 	echo -n "Build crosstool-ng-linaro... "
-	make -j4 > /dev/null
+	make -j4 > /dev/null 2>&1 || error
 	echo "done"
 	echo -n "Install crosstool-ng-linaro... "
-	make install > /dev/null
-	make clean > /dev/null
+	make install > /dev/null 2>&1 || error
+	make clean > /dev/null 2>&1 || error
 	echo "done"
 	cd $BASEDIR
 	echo $VERSION > "${BASEDIR}/version.txt"
+#	if [ -f "${BASEDIR}/crosstool-ng-linaro-${VERSION}.tar.bz2" ]; then
+#		rm "crosstool-ng-linaro-${VERSION}.tar.bz2"
+#	fi
 fi
 
 # Remove a workspace of already builded toolchains
 if [ -d "$BASEDIR/crosstool-ng/workspace/" ]; then 
 	echo -n "Remove previous workspace... "
-	rm -rf $BASEDIR/crosstool-ng/workspace
+	rm -rf $BASEDIR/crosstool-ng/workspace > /dev/null 2>&1 || error
 	echo "done"
 fi
 
@@ -357,8 +373,8 @@ ln -s $BASEDIR/crosstool-ng/workspace/.build $BASEDIR/crosstool-ng/workspace/bui
 
 # Build the toolchain
 cd $BASEDIR/crosstool-ng/workspace
-../ct-ng-linaro/bin/ct-ng $SAMPLE > /dev/null
-../ct-ng-linaro/bin/ct-ng build
+../ct-ng-linaro/bin/ct-ng $SAMPLE 2>&1 || error
+../ct-ng-linaro/bin/ct-ng build 2>&1 || error
 
 
 # Creat a gmg image of the toolchain, compress it to a ZIP archiv and move the 
@@ -370,9 +386,9 @@ hdiutil \
 	create "./${SAMPLE}.dmg" \
 	-srcfolder "./${TARGET}" \
 	-fs JHFS+X \
-	-volname "${TARGET}"  >/dev/null
+	-volname "${TARGET}" > /dev/null 2>&1 || error
 mv $TARGET install 
-zip -r -X "${BASEDIR}/${SAMPLE}-${VERSION}-mac.zip" "./${SAMPLE}.dmg" >/dev/null
+zip -r -X "${BASEDIR}/${SAMPLE}-${VERSION}-mac.zip" "./${SAMPLE}.dmg" > /dev/null 2>&1 || error
 rm -rf "./${SAMPLE}.dmg"
 cd $BASEDIR
 echo "done"
@@ -380,8 +396,9 @@ echo "done"
 # Cleanup 
 echo -n "Cleaning up... "
 # Unmount case sensitive disc image
-hdiutil detach "${BASEDIR}/crosstool-ng" >/dev/null 
+hdiutil detach "${BASEDIR}/crosstool-ng" > /dev/null
+source "${BASEDIR}/dellinks.sh" > /dev/null
+rm "${BASEDIR}/dellinks.sh" > /dev/null
 echo "done"
-echo "Run './dellinks.sh' to remove the created links from your system."
 
 exit 0

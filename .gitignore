@@ -10,3 +10,5 @@
 
 /crosstool-ng
 /crosstool-ng-linaro
+/version.txt
+/dellinks.sh
