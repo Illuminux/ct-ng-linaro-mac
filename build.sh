@@ -3,7 +3,7 @@
 # This Script builds ARM Linux Cross-Toolchain on and for Mac OS X,
 # based on Linaro Toolchain Sources.
 #
-# Copyright (C) 2014  Knut Welzel
+# Copyright (C) 2015  Knut Welzel
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,11 +20,12 @@
 # 
 
 # Abort on error
-#set -e
+set -e
 
 # Setup the base dir
 BASEDIR=$(pwd)
 
+# Error handler for clean up
 error() {
 	echo "*** ERROR ***"
 	source "${BASEDIR}/dellinks.sh"
@@ -34,7 +35,7 @@ error() {
 
 # Lenaro release
 RELEASE_VERSION="1.13.1"
-RELEASE_DATE="14.05"
+RELEASE_DATE="14.08"
 RELEASE_GCC="4.9"
 RELEASE_URL="https://releases.linaro.org/${RELEASE_DATE}/components/toolchain/binaries/crosstool-ng-linaro-${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}.tar.bz2"
 VERSION="${RELEASE_VERSION}-${RELEASE_GCC}-20${RELEASE_DATE}"
@@ -60,7 +61,7 @@ fi
 
 
 # Test if MacTeX is installed 
-# If it is not installed print message and abort
+# If it is not installed print message
 if ! hash "Xorg" 2>/dev/null; then
 	echo "To build the ARM Toolchain on Mac OS X it is recommended to install Xquartz."
 	echo "You can install Xquartz from Launchpad Utilitys, by clicking the X11 Icon"
@@ -84,7 +85,7 @@ SAMPLES=(
 )
 
 
-# Placeholder for the target 
+# Placeholder for the target sample
 SAMPLE=false
 
 # Parse command line arguments for supported sample
@@ -262,8 +263,8 @@ fi
 
 
 # For building the kernel and all the stuff, we need a case sensitiv file 
-# system the only way to get this is to create a disk image with the option 
-# JHFS+X. The option SPARSE mens that the image will increase up to the
+# system. The only way to get this is to create a disk image with the option 
+# JHFS+X. The option SPARSE means that the image will increase up to the
 # specified size.
 if ! [ -f "crosstool-ng.sparseimage" ]; then 
 	echo -n "Create case sensitiv disc image... "
@@ -285,7 +286,7 @@ fi
 
 
 #
-# Her we have to download and patch the crosstool-ng-linaro
+# Her we have to download, patch and install the crosstool-ng-linaro
 #
 
 if ! [ -f "${BASEDIR}/version.txt" ]; then
@@ -303,14 +304,13 @@ if [ "$(cat ${BASEDIR}/version.txt)" != "${VERSION}" ]; then
 		curl -OL# $RELEASE_URL
 	fi
 
-	# Extract crosstool-ng-linaro and ename crosstool-ng-linaro folder to a
+	# Extract crosstool-ng-linaro and rename crosstool-ng-linaro folder to a
 	# name without version info 
 	if [ -d "${BASEDIR}/crosstool-ng-linaro" ];then
 		echo -n "Remove previous source dir... "
 		rm -rf "${BASEDIR}/crosstool-ng-linaro" > /dev/null 2>&1 || error
 		echo "done"
-	fi
-	
+	fi	
 	echo -n "Extract crosstool-ng-linaro-${VERSION}... "
 	tar xf "crosstool-ng-linaro-${VERSION}.tar.bz2" > /dev/null
 	mv "crosstool-ng-linaro-${VERSION}" crosstool-ng-linaro > /dev/null 2>&1 || error
@@ -328,8 +328,8 @@ if [ "$(cat ${BASEDIR}/version.txt)" != "${VERSION}" ]; then
 	echo "Patching crosstool-ng-linaro for use on Mac OS X:"
 	patch -p1 < ../crosstool-ng-linaro-mac.patch 2>&1 || error
 	
-	# Configure crosstool-ng inside the case sensitve directory. So we do not have 
-	# any configurations on the samples.
+	# Configure crosstool-ng inside the case sensitve directory. So we do not
+	# have any configurations on the samples.
 	echo -n "Configure crosstool-ng-linaro... "
 	./configure \
 		--prefix="${BASEDIR}/crosstool-ng/ct-ng-linaro" \
@@ -352,9 +352,6 @@ if [ "$(cat ${BASEDIR}/version.txt)" != "${VERSION}" ]; then
 	echo "done"
 	cd $BASEDIR
 	echo $VERSION > "${BASEDIR}/version.txt"
-#	if [ -f "${BASEDIR}/crosstool-ng-linaro-${VERSION}.tar.bz2" ]; then
-#		rm "crosstool-ng-linaro-${VERSION}.tar.bz2"
-#	fi
 fi
 
 # Remove a workspace of already builded toolchains
@@ -364,11 +361,26 @@ if [ -d "$BASEDIR/crosstool-ng/workspace/" ]; then
 	echo "done"
 fi
 
+
 # Make som dirs and links for an simpler handling 
 mkdir -p $BASEDIR/crosstool-ng/workspace/.build
 mkdir -p $BASEDIR/crosstool-ng/tarballs
 ln -s $BASEDIR/crosstool-ng/tarballs $BASEDIR/crosstool-ng/workspace/.build/.
 ln -s $BASEDIR/crosstool-ng/workspace/.build $BASEDIR/crosstool-ng/workspace/build
+
+
+# Predownload of components sources given in ct-ng-linaro are not available.
+cd $BASEDIR/crosstool-ng/tarballs
+# Download binutils
+if ! [ -f "$BASEDIR/crosstool-ng/tarballs/binutils-linaro-2.24.0-2014.08.tar.bz2" ]; then
+	echo "Download binutils-linaro:"
+	curl -OL# https://releases.linaro.org/14.08/components/toolchain/binutils-linaro/binutils-linaro-2.24.0-2014.08.tar.bz2
+fi
+# Download binutils
+if ! [ -f "$BASEDIR/crosstool-ng/tarballs/gcc-linaro-4.9-2014.08.tar.xz" ]; then
+	echo "Download gcc-linaro:"
+	curl -OL# https://releases.linaro.org/14.08/components/toolchain/gcc-linaro/4.9/gcc-linaro-4.9-2014.08.tar.xz
+fi
 
 
 # Build the toolchain
@@ -400,5 +412,10 @@ hdiutil detach "${BASEDIR}/crosstool-ng" > /dev/null
 source "${BASEDIR}/dellinks.sh" > /dev/null
 rm "${BASEDIR}/dellinks.sh" > /dev/null
 echo "done"
+
+echo 
+echo "Build of '${SAMPLE}' successfully finished!"
+echo "Saved in '${BASEDIR}/${SAMPLE}-${VERSION}-mac.zip'"
+echo 
 
 exit 0

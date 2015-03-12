@@ -1,9 +1,9 @@
-ARM Linux Cross-Toolchain for Mac OS X
+crosstool-NG Linaro for Mac OS X
 ======================================
 
-This script allows to build the Linaro ARM Linux Cross-Toolchain on Mac OS X. 
+This script builds the Linaro ARM toolchain on Mac OS X and for Mac OS X. Base is the modified version of the crosstool-NG by Linaro. 
 
-Base is the release 1.13.1 GCC 4.8 (2014.04)
+Release 1.13.1 GCC 4.9 (2014.08)
 
 Build ARM Linux Cross-Toolchain:
 Just run the script in the top level directory of the repo
